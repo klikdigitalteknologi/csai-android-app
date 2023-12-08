@@ -1,0 +1,11 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<resources>
+    <style name="appTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorAccent">@color/primary</item>
+    </style>
+    <style name="navigationTheme">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorControlHighlight">@color/primary</item>
+    </style>
+</resources>

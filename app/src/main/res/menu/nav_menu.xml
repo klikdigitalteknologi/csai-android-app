@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="@string/dashboards"
+            android:icon="@drawable/baseline_home_24"/>
+        <item
+            android:id="@+id/nav_chat"
+            android:title="@string/chat"
+            android:icon="@drawable/baseline_chat_24"/>
+        <item
+            android:id="@+id/nav_chatBot"
+            android:title="@string/chat_bot"
+            android:icon="@drawable/baseline_mark_chat_unread_24"/>
+        <item
+            android:id="@+id/nav_quick"
+            android:title="@string/quick_reply"
+            android:icon="@drawable/baseline_swap_horizontal_circle_24"/>
+        <item
+            android:id="@+id/nav_contact"
+            android:title="@string/contacts"
+            android:icon="@drawable/baseline_contacts_24"/>
+        <item
+            android:id="@+id/nav_panduan"
+            android:title="@string/panduan_pengguna"
+            android:icon="@drawable/baseline_assignment_24"/>
+    </group>
+</menu>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#5880C0</color>
+    <color name="textmenu">#00CFE8</color>
+    <color name="textColor">#565B65</color>
+    <color name="background">#F7F7FA</color>
+    <color name="textSecon">#9B9A9D</color>
+    <color name="dashboard">#2CC2EA</color>
+    <color name="dashboard2">#4DE9C9</color>
+    <color name="dashboard3">#72A4FF</color>
+    <color name="dashboard4">#8B72FF</color>
+    <color name="table">#E7BED3FF</color>
+    <color name="card">#ECFDF5</color>
+    <color name="red">#ff0000</color>
+    <color name="colorLink">#0000FF</color>
+
+</resources>

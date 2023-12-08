@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    app:startDestination="@id/nav_home">
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="id.klikdigital.csaiapp.fragment.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home"/>
+    <fragment
+        android:id="@+id/nav_chat"
+        android:name="id.klikdigital.csaiapp.fragment.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" />
+    <fragment
+        android:id="@+id/nav_chatBot"
+        android:name="id.klikdigital.csaiapp.fragment.ChatBotFragment"
+        android:label="fragment_chat_bot"
+        tools:layout="@layout/fragment_chat_bot" />
+    <fragment
+        android:id="@+id/nav_quick"
+        android:name="id.klikdigital.csaiapp.fragment.QuickFragment"
+        android:label="fragment_quick"
+        tools:layout="@layout/fragment_quick" />
+    <fragment
+        android:id="@+id/nav_contact"
+        android:name="id.klikdigital.csaiapp.fragment.ContactFragment"
+        android:label="fragment_contact"
+        tools:layout="@layout/fragment_contact" />
+    <fragment
+        android:id="@+id/nav_panduan"
+        android:name="id.klikdigital.csaiapp.fragment.PanduanFragment"
+        android:label="fragment_panduan"
+        tools:layout="@layout/fragment_panduan" />
+</navigation>
