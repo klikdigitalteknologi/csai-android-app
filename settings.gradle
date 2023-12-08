@@ -15,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CsaiApp"
+rootProject.name = "CSAI"
 include ':app'
