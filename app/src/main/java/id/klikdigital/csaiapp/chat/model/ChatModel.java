@@ -1,7 +1,5 @@
 package id.klikdigital.csaiapp.chat.model;
 
-import android.graphics.Bitmap;
-
 import com.google.gson.annotations.SerializedName;
 
 public class ChatModel {
@@ -26,17 +24,12 @@ public class ChatModel {
     @SerializedName("date")
     private String date;
     private String displayMessage;
-    public ChatModel(String pic, String nomorWhatsapp, String nama, String grup, String pesan, String status, String read, String type, String time, String date) {
-        this.pic = pic;
-        this.nomorWhatsapp = nomorWhatsapp;
-        this.nama = nama;
-        this.grup = grup;
-        this.pesan = pesan;
-        this.status = status;
-        this.read = read;
-        this.type = type;
-        this.time = time;
-        this.date = date;
+    public static ChatModel create(String nomorWhatsapp, String message, String datetime) {
+        ChatModel chatModel = new ChatModel();
+        chatModel.setNomorWhatsapp(nomorWhatsapp);
+        chatModel.setDisplayMessage(message); // Sesuaikan sesuai kebutuhan
+        // Set nilai-nilai lainnya jika diperlukan
+        return chatModel;
     }
     public String getPic() {
         return pic;
