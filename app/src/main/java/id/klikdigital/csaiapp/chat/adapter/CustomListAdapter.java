@@ -36,16 +36,23 @@ public class CustomListAdapter extends ArrayAdapter<ChatModel> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
-
-
         TextView textName = convertView.findViewById(R.id.textName);
         TextView textMessage = convertView.findViewById(R.id.textMessage);
         TextView textTime = convertView.findViewById(R.id.textTimeList);
+        TextView textCountMessage = convertView.findViewById(R.id.textCountMessage);
        if (chat != null){
      // asumsi chat.getTime() mengembalikan string waktu seperti "08:14:37"
+           String phoneNumberWithDomain = chat.getNomorWhatsapp();
+           String[] parts = phoneNumberWithDomain.split("@");
+           String phoneNumber = parts[0].trim();
            textTime.setText(chat.getTime());
-           textName.setText(chat.getNama());
-           textMessage.setText(chat.getDisplayMessage());
+           textName.setText(phoneNumber);
+           textMessage.setText(chat.getPesan());
+//           if (chat.getRead().equals("0")){
+//               textCountMessage.setVisibility(View.VISIBLE);
+//           }else {
+//               textCountMessage.setVisibility(View.GONE);
+//           }
 
        }
         return convertView;
