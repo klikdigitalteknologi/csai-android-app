@@ -28,7 +28,20 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.pusher.client.Pusher;
+import com.pusher.client.PusherOptions;
+import com.pusher.client.channel.Channel;
+import com.pusher.client.connection.ConnectionEventListener;
+import com.pusher.client.connection.ConnectionState;
+import com.pusher.client.connection.ConnectionStateChange;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +52,7 @@ import id.klikdigital.csaiapp.chat.adapter.ChatAdapter;
 import id.klikdigital.csaiapp.chat.interfaces.ChatService;
 import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
+import id.klikdigital.csaiapp.chat.response.PusherResponse;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
 import id.klikdigital.csaiapp.config.Config;
 import id.klikdigital.csaiapp.config.ConfigPrivate;
@@ -51,7 +65,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatRoom extends AppCompatActivity {
-    private String perangkat,member,whatsapp,session,message,path,pengguna;
+    private String perangkat,member,whatsapp,session,message,path,pengguna,client;
+    private String[] wa;
+    private static final String APP_ID="1578008";
+    private static final String KEY ="560f792226b7069d0cd9";
+    private static final String SECRET = "e8b3af6069e8cc5db7fb";
+    private static final String CLUSTER ="ap1";
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
@@ -63,13 +82,6 @@ public class ChatRoom extends AppCompatActivity {
     private Handler handler;
     private int page,limit,sender;
     private ImageView showImageSender;
-    private final Runnable loadChatRunnable = new Runnable() {
-        @Override
-        public void run() {
-            newChat();
-            handler.postDelayed(this, 1000);
-        }
-    };
     @SuppressLint({"UseCompatLoadingForDrawables", "ClickableViewAccessibility", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +97,6 @@ public class ChatRoom extends AppCompatActivity {
         setSupportActionBar(toolbar);
         AppCompatImageView btnsend = findViewById(R.id.btnsend);
         chatList = new ArrayList<>();
-         handler = new Handler();
-         final int delay = 1;
         SessionManage sessionManage = SessionManage.getInstance(this);
         UserItem userItem = sessionManage.getUserData();
         perangkat = userItem.getMemberKode();
@@ -97,19 +107,21 @@ public class ChatRoom extends AppCompatActivity {
         limit = 10;
         linearLayoutManager = new LinearLayoutManager(this);
         Intent intent = getIntent();
-        whatsapp = intent.getStringExtra("nomor_wa");
-        pengguna = intent.getStringExtra("nama_user");
-        Log.d("NAMA USER",pengguna);
-       user.setText(pengguna);
+//        client = intent.getStringExtra("nomor_wa");
+//        wa = client.split("@");
+//        whatsapp = wa[0].trim();
+        whatsapp =  intent.getStringExtra("nomor_wa");
+//        pengguna = intent.getStringExtra("nama_user");
+//        Log.d("NAMA USER",pengguna);
+//       user.setText(pengguna);
         Log.d("nomor WA","dpe nomor: " + whatsapp);
         if (whatsapp != null && !whatsapp.isEmpty()) {
             progressBar.setVisibility(View.VISIBLE);
-            readChat();
-            loadDataChat();
+           readChat();
+           loadDataChat();
         } else {
             Toast.makeText(getApplicationContext(), "Nomor WhatsApp tidak valid", Toast.LENGTH_SHORT).show();
         }
-        handler.postDelayed(loadChatRunnable,delay);
         btnsend.setOnClickListener(view -> {
 //                ((Button)view).setCompoundDrawables(attahcment,null,attahcment,null);
             message = emessage.getText().toString().trim();
@@ -122,12 +134,72 @@ public class ChatRoom extends AppCompatActivity {
                 sendMessage();
             }
         });
-        emojiBtn.setOnClickListener(new View.OnClickListener() {
+        emojiBtn.setOnClickListener(view -> {
+        });
+    }
+    //func read chat
+    private void readChat() {
+        ChatService chatService = Config.htppclient().create(ChatService.class);
+        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
+        call.enqueue(new Callback<ChatRoomResponse>() {
             @Override
-            public void onClick(View view) {
+            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
+                if (response.isSuccessful()){
+                    Log.d("RESPONSE","CHAT suskes di read");
+                } else {
+                    Log.d("RESPONSE","GAGAL READ");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
     }
+    //end read chat
+
+    //function load data chat
+    private void loadDataChat() {
+        ChatService chatService = Config.htppclient().create(ChatService.class);
+        Call<ChatRoomResponse> call = chatService.getChats(perangkat, member, whatsapp, session, page, limit);
+        call.enqueue(new Callback<ChatRoomResponse>() {
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
+                if (response.isSuccessful()) {
+                    ChatRoomResponse chatRoomResponse = response.body();
+                    if (chatRoomResponse != null && chatRoomResponse.isStatus() && chatRoomResponse.getData() != null) {
+                        chatList.addAll(chatRoomResponse.getData());
+                        Collections.reverse(chatList);
+                        recyclerView.setLayoutManager(linearLayoutManager);
+                        recyclerView.setHasFixedSize(true);
+                        recyclerView.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                        // Check if the adapter is already initialized
+                        if (chatAdapter == null) {
+                            chatAdapter = new ChatAdapter(chatList);
+                            recyclerView.setAdapter(chatAdapter);
+                            chatAdapter.notifyDataSetChanged();
+                            recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                            setChatToPusher();
+                        }
+                        setChatToPusher();
+                    } else {
+                        Log.d("RESPONSE DATA", "KOSONGG");
+                    }
+                } else {
+                    Log.d("RESPONSE SERVER", "ERROR REQUEST TIMEOUT");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    // end load chat
+
+    //start new chat
     private void newChat() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
         Call<ChatRoomResponse> callChat = chatService.newChat(perangkat, member, whatsapp, session);
@@ -151,32 +223,14 @@ public class ChatRoom extends AppCompatActivity {
                     Log.d("RESPONSE SERVER", "ERROR REQUEST TIMEOUT");
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
                 Log.d("RESPONSE", Objects.requireNonNull(t.getMessage()));
             }
         });
     }
-    //func read chat
-    private void readChat() {
-        ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
-        call.enqueue(new Callback<ChatRoomResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
-                if (response.isSuccessful()){
-                    Log.d("RESPONSE","CHAT suskes di read");
-                } else {
-                   Log.d("RESPONSE","GAGAL READ");
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    //end new chat
+
     //send message
     private void sendMessage() {
         ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
@@ -185,7 +239,6 @@ public class ChatRoom extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
                 if ( response.body() != null && response.body().isStatus()){
-                    newChat();
                     emessage.setText("");
                 } else {
                     Toast.makeText(getApplicationContext(),"gagal terkirim",Toast.LENGTH_SHORT).show();
@@ -197,17 +250,49 @@ public class ChatRoom extends AppCompatActivity {
             }
         });
     }
-    //function add and show message to recycle view
-//    @SuppressLint("NotifyDataSetChanged")
-//    private void sddMessageToRecycle(String message) {
-//        ChatModelPrivate chatModelPrivate = new ChatModelPrivate();
-//        chatModelPrivate.setText(message);
-//        chatModelPrivate.setJenis("keluar");
-//        chatModelPrivate.setTime(chatModelPrivate.getTime());
-//        chatList.add(chatModelPrivate);
-//        chatAdapter.notifyDataSetChanged();
-//        recyclerView.scrollToPosition(chatAdapter.getItemCount() -1);
-//    }
+//end send message
+    @SuppressLint("NotifyDataSetChanged")
+    private void setChatToPusher() {
+            PusherOptions options = new PusherOptions().setCluster(CLUSTER);
+            Pusher pusher = new Pusher(KEY, options);
+            pusher.connect(new ConnectionEventListener() {
+            @Override
+            public void onConnectionStateChange(ConnectionStateChange change) {
+                Log.d("Pusher", "State: " + change.getCurrentState());
+            }
+            @Override
+            public void onError(String message, String code, Exception e) {
+                Log.e("Pusher", "Error: " + message);
+            }
+        }, ConnectionState.ALL);
+                pusher.connect();
+                Channel channel = pusher.subscribe(member + "-messages");
+                channel.bind(member,event -> {
+                    try {
+           JSONObject jsonObject = new JSONObject(event.getData());
+           Gson gson = new Gson();
+           PusherResponse pusherResponse = gson.fromJson(jsonObject.toString(),PusherResponse.class);
+        String data = pusherResponse.getNomorWhatsapp();
+        String[] type = data.split(",");
+        String datetime = pusherResponse.getDatetime();
+        String[] waktu = datetime.split(",");
+        String jam = waktu[1].trim();
+        String nomor = type[0].trim();
+        String jenis = type[1].trim();
+        ChatModelPrivate chatModelPrivate = new ChatModelPrivate();
+        chatModelPrivate.setText(message);
+        chatModelPrivate.setJenis(jenis);
+        chatModelPrivate.setTime(jam);
+        runOnUiThread(()->{
+        chatList.add(chatModelPrivate);
+        chatAdapter.notifyDataSetChanged();
+        recyclerView.scrollToPosition(chatAdapter.getItemCount() -1);
+        });
+        } catch (JSONException e) {
+        throw new RuntimeException(e);
+        }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.attachment_menu,menu);
@@ -221,45 +306,6 @@ public class ChatRoom extends AppCompatActivity {
          finish();
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-//function load data chat
-    private void loadDataChat() {
-        ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse> call = chatService.getChats(perangkat, member, whatsapp, session, page, limit);
-        call.enqueue(new Callback<ChatRoomResponse>() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
-                if (response.isSuccessful()) {
-                    ChatRoomResponse chatRoomResponse = response.body();
-                    if (chatRoomResponse != null && chatRoomResponse.isStatus() && chatRoomResponse.getData() != null) {
-                        chatList.addAll(chatRoomResponse.getData());
-                        Collections.reverse(chatList);
-                        recyclerView.setLayoutManager(linearLayoutManager);
-                        recyclerView.setHasFixedSize(true);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        progressBar.setVisibility(View.GONE);
-                        // Check if the adapter is already initialized
-                        if (chatAdapter == null) {
-                            chatAdapter = new ChatAdapter(chatList);
-                            recyclerView.setAdapter(chatAdapter);
-                            chatAdapter.notifyDataSetChanged();
-                            recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
-                        }
-                    } else {
-                        Log.d("RESPONSE DATA", "KOSONGG");
-                    }
-                } else {
-                    Log.d("RESPONSE SERVER", "ERROR REQUEST TIMEOUT");
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
     }
     //item send file/image/video
     public void showAttachmentOptions(View view) {
@@ -278,7 +324,6 @@ public class ChatRoom extends AppCompatActivity {
         });
         popupMenu.show();
     }
-
     private void showStorage() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
@@ -291,7 +336,6 @@ public class ChatRoom extends AppCompatActivity {
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -308,10 +352,8 @@ public class ChatRoom extends AppCompatActivity {
             showImageSender.setVisibility(View.INVISIBLE);
         }
     }
-
     @Override
     protected void onDestroy() {
-        handler.removeCallbacks(loadChatRunnable);
         super.onDestroy();
     }
 }
