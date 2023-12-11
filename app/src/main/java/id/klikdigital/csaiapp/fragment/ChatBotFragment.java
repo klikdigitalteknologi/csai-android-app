@@ -25,6 +25,7 @@ import id.klikdigital.csaiapp.chatBot.adapter.ChatBotTableDataAdapter;
 import id.klikdigital.csaiapp.chatBot.interfaces.ChatBotService;
 import id.klikdigital.csaiapp.chatBot.model.ChatModelBot;
 import id.klikdigital.csaiapp.chatBot.response.ChatBotResponse;
+import id.klikdigital.csaiapp.config.ChatRetrofit;
 import id.klikdigital.csaiapp.config.Config;
 import id.klikdigital.csaiapp.session.SessionManage;
 import retrofit2.Call;
@@ -117,5 +118,7 @@ final Handler handler = new Handler();
         }
         tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(getContext(),header));
         tableView.setDataAdapter(new ChatBotTableDataAdapter(getContext(),chatModelBotList));
+    }
+    private void setHandle(){
     }
     }
