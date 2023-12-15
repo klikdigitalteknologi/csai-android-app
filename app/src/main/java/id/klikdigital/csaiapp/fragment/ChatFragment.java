@@ -9,8 +9,6 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,17 +22,12 @@ import com.google.gson.Gson;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
-import com.pusher.client.channel.PusherEvent;
 import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 
 import id.klikdigital.csaiapp.R;
@@ -50,10 +43,9 @@ import id.klikdigital.csaiapp.session.SessionManage;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 public class ChatFragment extends Fragment {
-
     private Context context;
+    private Pusher pusher;
     private ArrayList<ChatModel> chatModels;
     private String perangkat,member,session,message;
     private CustomListAdapter adapter;
@@ -98,6 +90,8 @@ public class ChatFragment extends Fragment {
             intent.putExtra("nomor_wa",chatModel.getNomorWhatsapp());
             intent.putExtra("nama_user",chatModel.getNama());
             startActivity(intent);
+            getActivity().finish();
+            pusher.disconnect();
         });
         getDataFromServer();
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -109,7 +103,6 @@ public class ChatFragment extends Fragment {
                 Toast.makeText(context,"ini adalah button chat new",Toast.LENGTH_SHORT).show());
         return view;
     }
-
     private void getDataFromServer() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
         Call<ChatResponse> chatResponseCall = chatService.getChatData(perangkat, member, session, limit);
@@ -149,7 +142,7 @@ public class ChatFragment extends Fragment {
     }
     private void getDataFromPusher() {
         PusherOptions options = new PusherOptions().setCluster(cluster);
-        Pusher pusher = new Pusher(key, options);
+         pusher = new Pusher(key, options);
         pusher.connect(new ConnectionEventListener() {
             @Override
             public void onConnectionStateChange(ConnectionStateChange change) {
@@ -162,61 +155,69 @@ public class ChatFragment extends Fragment {
         }, ConnectionState.ALL);
         pusher.connect();
         Channel channel = pusher.subscribe(member + "-messages");
-        Log.d("RESPONSE", String.valueOf(channel));
-        //...
-// Di dalam metode getDataFromPusher
         channel.bind(member, event -> {
-//            getDataFromServer();
-                        try {
-                    JSONObject jsonData = new JSONObject(event.getData());
-                    Log.d("RESPONSE JSON", jsonData.toString());
-                    // Gunakan Gson untuk mengonversi JSON ke objek PusherResponse
-                    Gson gson = new Gson();
-                    PusherResponse pusherResponse = gson.fromJson(jsonData.toString(), PusherResponse.class);
-        // Ambil nilai dari objek PusherResponse
-        String phoneNumberWithDomain = pusherResponse.getNomorWhatsapp();
-        String name = pusherResponse.getName();
-        String message = pusherResponse.getPesan();
-        String datetime = pusherResponse.getDatetime();
-        String[] parts = phoneNumberWithDomain.split(",");
-        String phoneNumber = parts[0].trim();
-        String[] waktu = datetime.split(",");
-        String jam = waktu[1].trim();
-        Log.d("NOMOR SUB","\n"+phoneNumber);
-
-        ChatModel newChatModel = new ChatModel();
-        newChatModel.setNomorWhatsapp(phoneNumber);
-        newChatModel.setNama(name);
-        newChatModel.setPesan(message);
-        newChatModel.setTime(jam);
-        getActivity().runOnUiThread(() -> {
-        boolean isExisting = false;
-        for (int i = 0; i < chatModels.size(); i++) {
-        if (chatModels.get(i).getNomorWhatsapp().equals(phoneNumber)) {
-        chatModels.set(i, newChatModel);
-        isExisting = true;
-        break;
-        } else {
-        Toast.makeText(context,"TIDAK ADA",Toast.LENGTH_SHORT).show();
-        }
-        }
-        // Jika belum ada, tambahkan ke posisi yang benar
-        if (!isExisting) {
-        chatModels.add(0, newChatModel);
-        }
-        // Urutkan chatModels berdasarkan waktu pesan
-//        chatModels.sort((chatModel1, chatModel2) ->
-//        chatModel2.getTime().compareTo(chatModel1.getTime()));
-        // Perbarui adapter dan ListView
-        adapter.clear();
-        adapter.addAll(chatModels);
-        adapter.notifyDataSetChanged();
-        listView.setAdapter(adapter);
-        });
-        } catch (JSONException e) {
-        Log.d("RESPONSE ERROR JSON", "error" + e.getMessage());
-        e.printStackTrace();
-        }
+            getDataFromServer();
+//                        try {
+//                    JSONObject jsonData = new JSONObject(event.getData());
+//                    Log.d("RESPONSE JSON", jsonData.toString());
+//                    // Gunakan Gson untuk mengonversi JSON ke objek PusherResponse
+//                    Gson gson = new Gson();
+//                    PusherResponse pusherResponse = gson.fromJson(jsonData.toString(), PusherResponse.class);
+//        // Ambil nilai dari objek PusherResponse
+//        String phoneNumberWithDomain = pusherResponse.getNomorWhatsapp();
+//        String name = pusherResponse.getName();
+//        String message = pusherResponse.getPesan();
+//        String datetime = pusherResponse.getDatetime();
+//        String[] parts = phoneNumberWithDomain.split(",");
+//        String phoneNumber = parts[0].trim();
+//        String[] waktu = datetime.split(",");
+//        String jam = waktu[1].trim();
+//        Log.d("NOMOR SUB","\n"+phoneNumber);
+//                            if (Objects.equals(message, "image")){
+//                                getDataFromServer();
+//                            } else if (Objects.equals(message, "document")) {
+//                                getDataFromServer();
+//                            } else if (Objects.equals(message, "audio")) {
+//                                getDataFromServer();
+//                            } else if (Objects.equals(message, "video")) {
+//                                getDataFromServer();
+//                            }else {
+//                                ChatModel newChatModel = new ChatModel();
+//                                newChatModel.setNomorWhatsapp(phoneNumber);
+//                                newChatModel.setNama(name);
+//                                newChatModel.setPesan(message);
+//                                newChatModel.setTime(jam);
+//
+//                                requireActivity().runOnUiThread(() -> {
+//                                    if (!chatModels.isEmpty()) {
+//                                        boolean isExisting = false;
+//                                        for (int i = 0; i < chatModels.size(); i++) {
+//                                            if (chatModels.get(i).getNomorWhatsapp().equals(phoneNumber)) {
+//                                                chatModels.set(i, newChatModel);
+//                                                isExisting = true;
+//                                                break;
+//                                            } else {
+//                                                Toast.makeText(context, "TIDAK ADA", Toast.LENGTH_SHORT).show();
+//                                            }
+//                                        }
+//                                        if (!isExisting) {
+//                                            chatModels.add(0, newChatModel);
+//                                        }
+//                                        chatModels.sort((chatModel1, chatModel2) ->
+//                                                chatModel2.getTime().compareTo(chatModel1.getTime()));
+//                                        adapter.clear();
+//                                        adapter.addAll(chatModels);
+//                                        adapter.notifyDataSetChanged();
+//                                        listView.setAdapter(adapter);
+//                                    } else {
+//                                        Toast.makeText(context, "KOOSSSONNG", Toast.LENGTH_LONG).show();
+//                                    }
+//                                });
+//                            }
+//        } catch (JSONException e) {
+//        Log.d("RESPONSE ERROR JSON", "error" + e.getMessage());
+//        e.printStackTrace();
+//        }
         });
     }
 }
