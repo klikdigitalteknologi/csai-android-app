@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import id.klikdigital.csaiapp.R;
 import id.klikdigital.csaiapp.chat.model.ChatModel;
@@ -42,17 +44,21 @@ public class CustomListAdapter extends ArrayAdapter<ChatModel> {
         TextView textCountMessage = convertView.findViewById(R.id.textCountMessage);
        if (chat != null){
      // asumsi chat.getTime() mengembalikan string waktu seperti "08:14:37"
-           String phoneNumberWithDomain = chat.getNomorWhatsapp();
-           String[] parts = phoneNumberWithDomain.split("@");
-           String phoneNumber = parts[0].trim();
-           textTime.setText(chat.getTime());
-           textName.setText(phoneNumber);
+//           String phoneNumberWithDomain = chat.getNomorWhatsapp();
+//           String[] parts = phoneNumberWithDomain.split("@");
+//           String phoneNumber = parts[0].trim();
+           String waktu = chat.getTime();
+           String time = waktu.substring(0,5);
+           textTime.setText(time);
+           textName.setText(chat.getNama());
            textMessage.setText(chat.getPesan());
-//           if (chat.getRead().equals("0")){
-//               textCountMessage.setVisibility(View.VISIBLE);
-//           }else {
-//               textCountMessage.setVisibility(View.GONE);
-//           }
+           if (Objects.equals(chat.getStatus(), "0")){
+               textCountMessage.setVisibility(View.VISIBLE);
+               textMessage.setTypeface(null, Typeface.BOLD);
+               textName.setTypeface(null,Typeface.BOLD);
+           }else {
+               textCountMessage.setVisibility(View.GONE);
+           }
 
        }
         return convertView;
