@@ -10,7 +10,7 @@
         <ImageView
             android:id="@+id/imageChat"
             android:layout_width="@dimen/_35sdp"
-            android:src="@drawable/user_profile_chat"
+            android:src="@drawable/userfoto"
             android:layout_height="@dimen/_35sdp"/>
     </LinearLayout>
     <LinearLayout
