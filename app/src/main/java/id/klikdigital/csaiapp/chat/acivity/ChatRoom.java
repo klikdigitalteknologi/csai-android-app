@@ -67,6 +67,7 @@ import retrofit2.Response;
 public class ChatRoom extends AppCompatActivity {
     private String perangkat,member,whatsapp,session,message,path,pengguna,client;
     private String[] wa;
+    private Pusher pusher;
     private static final String APP_ID="1578008";
     private static final String KEY ="560f792226b7069d0cd9";
     private static final String SECRET = "e8b3af6069e8cc5db7fb";
@@ -181,8 +182,8 @@ public class ChatRoom extends AppCompatActivity {
                             recyclerView.setAdapter(chatAdapter);
                             chatAdapter.notifyDataSetChanged();
                             recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
-                            setChatToPusher();
                         }
+//                        readChat();
                         setChatToPusher();
                     } else {
                         Log.d("RESPONSE DATA", "KOSONGG");
@@ -212,6 +213,7 @@ public class ChatRoom extends AppCompatActivity {
                     if (chatRoomResponse != null && chatRoomResponse.isStatus() && chatRoomResponse.getData() != null) {
                         List<ChatModelPrivate> newChatlist = chatRoomResponse.getData();
                       chatList.addAll(newChatlist);
+                      chatList = chatRoomResponse.getData();
                       chatAdapter.notifyDataSetChanged();
                         recyclerView.setAdapter(chatAdapter);
                         recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
@@ -240,6 +242,7 @@ public class ChatRoom extends AppCompatActivity {
             public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
                 if ( response.body() != null && response.body().isStatus()){
                     emessage.setText("");
+                    setChatToPusher();
                 } else {
                     Toast.makeText(getApplicationContext(),"gagal terkirim",Toast.LENGTH_SHORT).show();
                 }
@@ -254,7 +257,7 @@ public class ChatRoom extends AppCompatActivity {
     @SuppressLint("NotifyDataSetChanged")
     private void setChatToPusher() {
             PusherOptions options = new PusherOptions().setCluster(CLUSTER);
-            Pusher pusher = new Pusher(KEY, options);
+             pusher = new Pusher(KEY, options);
             pusher.connect(new ConnectionEventListener() {
             @Override
             public void onConnectionStateChange(ConnectionStateChange change) {
@@ -268,29 +271,41 @@ public class ChatRoom extends AppCompatActivity {
                 pusher.connect();
                 Channel channel = pusher.subscribe(member + "-messages");
                 channel.bind(member,event -> {
-                    try {
-           JSONObject jsonObject = new JSONObject(event.getData());
-           Gson gson = new Gson();
-           PusherResponse pusherResponse = gson.fromJson(jsonObject.toString(),PusherResponse.class);
-        String data = pusherResponse.getNomorWhatsapp();
-        String[] type = data.split(",");
-        String datetime = pusherResponse.getDatetime();
-        String[] waktu = datetime.split(",");
-        String jam = waktu[1].trim();
-        String nomor = type[0].trim();
-        String jenis = type[1].trim();
-        ChatModelPrivate chatModelPrivate = new ChatModelPrivate();
-        chatModelPrivate.setText(message);
-        chatModelPrivate.setJenis(jenis);
-        chatModelPrivate.setTime(jam);
-        runOnUiThread(()->{
-        chatList.add(chatModelPrivate);
-        chatAdapter.notifyDataSetChanged();
-        recyclerView.scrollToPosition(chatAdapter.getItemCount() -1);
-        });
-        } catch (JSONException e) {
-        throw new RuntimeException(e);
-        }
+                    newChat();
+//                    try {
+//           JSONObject jsonObject = new JSONObject(event.getData());
+//           Gson gson = new Gson();
+//           PusherResponse pusherResponse = gson.fromJson(jsonObject.toString(),PusherResponse.class);
+//        String data = pusherResponse.getNomorWhatsapp();
+//        String chat = pusherResponse.getPesan();
+//        String[] type = data.split(",");
+//        String datetime = pusherResponse.getDatetime();
+//        String[] waktu = datetime.split(",");
+//        String jam = waktu[1].trim();
+//        String nomor = type[0].trim();
+//        String jenis = type[1].trim();
+//       if (Objects.equals(chat, "image")){
+//         newChat();
+//       } else if (Objects.equals(chat, "document")) {
+//           newChat();
+//       } else if (Objects.equals(chat, "audio")) {
+//           newChat();
+//       } else if (Objects.equals(chat, "video")) {
+//           newChat();
+//       }else {
+//           ChatModelPrivate chatModelPrivate = new ChatModelPrivate();
+//           chatModelPrivate.setText(chat);
+//           chatModelPrivate.setJenis(jenis);
+//           chatModelPrivate.setTime(jam);
+//           runOnUiThread(() -> {
+//                   chatList.add(chatModelPrivate);
+//                   chatAdapter.notifyDataSetChanged();
+//                   recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+//           });
+//       }
+//        } catch (JSONException e) {
+//        throw new RuntimeException(e);
+//        }
         });
     }
     @Override
@@ -354,6 +369,10 @@ public class ChatRoom extends AppCompatActivity {
     }
     @Override
     protected void onDestroy() {
+        if (pusher !=null && pusher.getConnection() != null){
+            pusher.disconnect();
+        }
         super.onDestroy();
+
     }
 }
