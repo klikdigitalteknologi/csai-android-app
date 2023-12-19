@@ -59,4 +59,10 @@
     <string name="pesan2">PESAN</string>
     <string name="keyword">KEYWORD</string>
     <string name="view">View</string>
+    <string name="form_chat_bot">Form Chat Bot</string>
+    <string name="textchatbot">Chat Bot adalah fitur yang membantu anda untuk membalas pesan dari pelanggan secara otomatis dan aktif selama 24 jam dengan pemicu keyword tertentu. anda hanya perlu mengisi for...</string>
+    <string name="keywordtext">Keyword</string>
+    <string name="pesan1">Pesan</string>
+    <string name="type1">Jenis</string>
+    <string name="closechat">closeChat</string>
 </resources>

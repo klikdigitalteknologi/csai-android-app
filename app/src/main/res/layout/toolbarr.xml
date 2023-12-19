@@ -12,7 +12,6 @@
      <ImageView
          android:layout_width="@dimen/_35sdp"
          android:layout_height="@dimen/_35sdp"
-         android:src="@drawable/profil"
          android:id="@+id/imageProfileChat"
          app:layout_constraintTop_toTopOf="parent"
          app:layout_constraintBottom_toBottomOf="parent"
@@ -23,7 +22,8 @@
          android:id="@+id/textUserChat"
          android:textStyle="bold"
          android:textColor="@color/black"
-         android:layout_marginStart="@dimen/_15sdp"
+         android:textSize="@dimen/_16ssp"
+         android:layout_marginStart="@dimen/_13sdp"
          app:layout_constraintStart_toEndOf="@id/imageProfileChat"
          app:layout_constraintTop_toTopOf="parent"
          app:layout_constraintBottom_toBottomOf="parent"/>
