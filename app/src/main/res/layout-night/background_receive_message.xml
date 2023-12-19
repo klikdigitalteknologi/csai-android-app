@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/_8sdp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -23,7 +22,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/layouttextview"
             android:orientation="horizontal"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageReceive"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <TextView
@@ -31,8 +30,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/textreceivechat"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_13ssp"
+                android:textSize="@dimen/_15ssp"
                 android:padding="@dimen/_8sdp"
+                android:layout_marginStart="@dimen/_10sdp"
                 android:background="@drawable/background_send_message"/>
         </LinearLayout>
         <TextView
@@ -41,8 +41,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:textSize="@dimen/_7ssp"
-            android:layout_marginStart="@dimen/_5sdp"
-
+            android:layout_marginStart="@dimen/_10sdp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layouttextview"
             />

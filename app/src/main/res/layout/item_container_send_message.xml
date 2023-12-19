@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/textSendMessage"
         android:textColor="@color/white"
-        android:textSize="@dimen/_13ssp"
+        android:textSize="@dimen/_15ssp"
         android:padding="@dimen/_8sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
