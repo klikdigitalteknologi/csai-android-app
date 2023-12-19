@@ -44,7 +44,7 @@
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <de.codecrafters.tableview.TableView
-        app:tableView_headerColor="@color/table"
+        app:tableView_headerColor="@color/card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/table_chatbott"
