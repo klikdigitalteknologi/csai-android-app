@@ -6,46 +6,186 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/background_chat_room"
     tools:context=".fragment.ChatRoomFragment">
-<include layout="@layout/toolbarr"
-    android:id="@+id/toolbarrr"/>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/r_chat"
+        android:layout_height="match_parent"
+        android:id="@+id/containerid"
+        tools:context=".chat.acivity.ChatRoom">
+        <View
+            android:id="@+id/viewBackground"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="1dp"
+            android:layout_marginBottom="@dimen/_16sdp"
+            app:layout_constraintBottom_toTopOf="@id/layoutlinier"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <include
+            android:id="@+id/toolbaeer"
+            layout="@layout/toolbarr"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/r_chat"
             android:clipToPadding="false"
-            android:orientation="vertical"
-            android:padding="@dimen/_5sdp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:stackFromEnd="true"
             app:reverseLayout="true"
-            app:stackFromEnd="true" />
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="@id/viewBackground"
+            app:layout_constraintTop_toBottomOf="@id/toolbaeer"/>
         <ImageView
             android:id="@+id/imageSender"
             android:layout_width="@dimen/_200sdp"
             android:layout_height="@dimen/_200sdp"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/pbChat"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/layoutlinier"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:contentDescription="@string/image"
             />
+        <androidx.cardview.widget.CardView
+
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginStart="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_50sdp"
+            android:id="@+id/cardPopup"
+            android:visibility="invisible"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:layout_constraintBottom_toTopOf="@id/layoutlinier"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnfoto"
+                    android:id="@+id/btnfile"
+                    android:layout_gravity="center"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:src="@drawable/baseline_insert_drive_file_24"
+                    />
+                <ImageView
+                    android:id="@+id/btnfoto"
+                    android:layout_gravity="center"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnaudio"
+                    app:layout_constraintStart_toEndOf="@id/btnfile"
+                    android:src="@drawable/baseline_insert_photo_24"/>
+                <ImageView
+                    android:id="@+id/btnaudio"
+                    android:layout_gravity="center"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnvideo"
+                    app:layout_constraintStart_toEndOf="@id/btnfoto"
+                    android:src="@drawable/baseline_audio_file_24"/>
+                <ImageView
+                    android:id="@+id/btnvideo"
+                    android:layout_gravity="center"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/btnaudio"
+                    android:src="@drawable/baseline_video_library_24"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
         <ProgressBar
             android:layout_width="@dimen/_25sdp"
             android:layout_height="@dimen/_25sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/viewBackground"
+            app:layout_constraintEnd_toEndOf="@id/viewBackground"
+            app:layout_constraintStart_toStartOf="@id/viewBackground"
             android:id="@+id/pbChat"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="@id/viewBackground"/>
+        <LinearLayout
+            android:id="@+id/layoutlinier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_5sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:background="@drawable/card_edit_text"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/_5sdp">
+                <ImageView
+                    android:id="@+id/btnEmoji"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/eChat"
+                    android:src="@drawable/baseline_insert_emoticon_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:contentDescription="@string/emoji" />
+                <EditText
+                    android:id="@+id/eChat"
+                    android:textSize="@dimen/_15ssp"
+                    android:layout_marginStart="@dimen/_35sdp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:drawablePadding="@dimen/_10sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_width="match_parent"
+                    android:scrollbars="vertical"
+                    android:scrollHorizontally="false"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/_70sdp"
+                    android:hint="@string/message"
+                    android:background="@android:color/transparent"
+                    android:autofillHints=""
+                    android:inputType="textMultiLine" />
+                <ImageView
+                    android:id="@+id/btnShowCardview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/round_attachment_24"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/eChat"
+                    app:layout_constraintEnd_toStartOf="@id/layousend"
+                    android:contentDescription="@string/message" />
+                <FrameLayout
+                    android:id="@+id/layousend"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:background="@drawable/card_button"
+                    app:layout_constraintEnd_toEndOf="parent">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/btnsend"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:padding="@dimen/_8sdp"
+                        android:src="@drawable/baseline_send_24" />
+                </FrameLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <include layout="@layout/layout_form_chat"
-        android:id="@+id/formChat"/>
 </FrameLayout>
