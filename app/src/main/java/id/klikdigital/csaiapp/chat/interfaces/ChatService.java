@@ -2,15 +2,19 @@ package id.klikdigital.csaiapp.chat.interfaces;
 
 import id.klikdigital.csaiapp.chat.response.ChatResponse;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
+import id.klikdigital.csaiapp.chat.response.NotifResponse;
+import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
 import id.klikdigital.csaiapp.chat.response.SendImageResponse;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface ChatService {
@@ -23,9 +27,7 @@ public interface ChatService {
     @GET("/chats")
     Call<ChatRoomResponse> getChats(
             @Query("perangkat") String perangkat,
-            @Query("member") String member,
             @Query("whatsapp") String whatsapp,
-            @Query("session") String session,
             @Query("page") int page,
             @Query("limit") int limit);
     @FormUrlEncoded
@@ -49,13 +51,27 @@ public interface ChatService {
             @Query("session") String session
     );
 
-    @FormUrlEncoded
+    @Multipart
     @POST("/send-image")
     Call<SendImageResponse>sendImage(
-            @Field("sender") String sender,
-            @Field("whatsapp") String whatsapp,
-            @Field("image") String image,
-            @Field("message") String message);
+            @Part("sender") RequestBody sender,
+            @Part("whatsapp") RequestBody whatsapp,
+            @Part MultipartBody.Part image,
+            @Part("message") RequestBody message);
+
+    @GET("/notif")
+    Call<NotifResponse>getNotif(
+            @Query("perangkat") String perangkat,
+            @Query("member") String member,
+            @Query("session") String session,
+            @Query("limit") int limit);
+
+    @GET("/closeChat")
+    Call<ResponseDto>closeChat(
+            @Query("member") String member,
+            @Query("whatsapp") String whatsapp,
+            @Query("session") String session
+    );
 }
 
 

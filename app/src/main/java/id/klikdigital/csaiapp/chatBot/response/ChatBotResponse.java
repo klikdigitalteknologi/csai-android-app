@@ -1,13 +1,14 @@
 package id.klikdigital.csaiapp.chatBot.response;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import id.klikdigital.csaiapp.chatBot.model.ChatModelBot;
 
 public class ChatBotResponse {
     private boolean status;
-    private String message;
-    private ArrayList<ChatModelBot> data;
+    private String response;
+    private List<ChatModelBot> data;
 
     public boolean isStatus() {
         return status;
@@ -17,15 +18,15 @@ public class ChatBotResponse {
         this.status = status;
     }
 
-    public String getMessage() {
-        return message;
+    public String getResponse() {
+        return response;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setResponse(String response) {
+        this.response = response;
     }
 
-    public ArrayList<ChatModelBot> getData() {
+    public List<ChatModelBot> getData() {
         return data;
     }
 

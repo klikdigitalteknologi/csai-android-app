@@ -1,9 +1,12 @@
 package id.klikdigital.csaiapp.chat.acivity;
+import static com.amulyakhare.textdrawable.TextDrawable.SHAPE_ROUND;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,44 +18,43 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
 import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import id.klikdigital.csaiapp.MainActivity;
 import id.klikdigital.csaiapp.R;
 import id.klikdigital.csaiapp.chat.adapter.ChatAdapter;
 import id.klikdigital.csaiapp.chat.interfaces.ChatService;
 import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
-import id.klikdigital.csaiapp.chat.response.PusherResponse;
+import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
 import id.klikdigital.csaiapp.config.Config;
 import id.klikdigital.csaiapp.config.ConfigPrivate;
@@ -82,21 +84,37 @@ public class ChatRoom extends AppCompatActivity {
     private TextView user;
     private Handler handler;
     private int page,limit,sender;
-    private ImageView showImageSender;
-    @SuppressLint({"UseCompatLoadingForDrawables", "ClickableViewAccessibility", "MissingInflatedId"})
+    private ImageView imageProfileChat,emojiBtn,showImageSender,btnshowcard,btnOpenImage,btnOpenFile,btnOpenAudio,btnOpenVideo;
+    private AppCompatImageView btnsend;
+    private CardView cardView;
+    @SuppressLint({"UseCompatLoadingForDrawables", "ClickableViewAccessibility", "MissingInflatedId", "Range"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+
+        //imageView
         showImageSender = findViewById(R.id.imageSender);
+        btnshowcard = findViewById(R.id.btnShowCardview);
+        btnOpenImage = findViewById(R.id.btnfoto);
+        btnOpenFile = findViewById(R.id.btnfile);
+        btnOpenAudio = findViewById(R.id.btnaudio);
+        btnOpenVideo = findViewById(R.id.btnvideo);
+        btnsend = findViewById(R.id.btnsend);
+        imageProfileChat = findViewById(R.id.imageProfileChat);
+        emojiBtn = findViewById(R.id.btnEmoji);
+        //endImageView
+
+
+        //compoonent
         progressBar = findViewById(R.id.pbChat);
         recyclerView = findViewById(R.id.r_chat);
         user = findViewById(R.id.textUserChat);
         emessage = findViewById(R.id.eChat);
          toolbar = findViewById(R.id.toolbaeer);
-        ImageView emojiBtn = findViewById(R.id.btnEmoji);
+        cardView = findViewById(R.id.cardPopup);
+       /*endcomponent*/
         setSupportActionBar(toolbar);
-        AppCompatImageView btnsend = findViewById(R.id.btnsend);
         chatList = new ArrayList<>();
         SessionManage sessionManage = SessionManage.getInstance(this);
         UserItem userItem = sessionManage.getUserData();
@@ -112,9 +130,19 @@ public class ChatRoom extends AppCompatActivity {
 //        wa = client.split("@");
 //        whatsapp = wa[0].trim();
         whatsapp =  intent.getStringExtra("nomor_wa");
-//        pengguna = intent.getStringExtra("nama_user");
-//        Log.d("NAMA USER",pengguna);
-//       user.setText(pengguna);
+        pengguna = intent.getStringExtra("nama_user");
+        int cut = 1;
+        String cutName = pengguna.substring(0,cut);
+        TextDrawable drawable = new  TextDrawable.Builder()
+                .setColor(Color.rgb(88, 128, 192))
+                .setRadius(2)
+                .setBold()
+                .setShape(SHAPE_ROUND)
+                .setText(cutName)
+                .build();
+        imageProfileChat.setImageDrawable(drawable);
+       user.setText(pengguna);
+
         Log.d("nomor WA","dpe nomor: " + whatsapp);
         if (whatsapp != null && !whatsapp.isEmpty()) {
             progressBar.setVisibility(View.VISIBLE);
@@ -123,8 +151,8 @@ public class ChatRoom extends AppCompatActivity {
         } else {
             Toast.makeText(getApplicationContext(), "Nomor WhatsApp tidak valid", Toast.LENGTH_SHORT).show();
         }
+
         btnsend.setOnClickListener(view -> {
-//                ((Button)view).setCompoundDrawables(attahcment,null,attahcment,null);
             message = emessage.getText().toString().trim();
             Log.d("RESPONSE ANJAY","pesan: " +message );
             Log.d("RESPONSE NOMOR", "nomor: " + whatsapp );
@@ -137,32 +165,27 @@ public class ChatRoom extends AppCompatActivity {
         });
         emojiBtn.setOnClickListener(view -> {
         });
-    }
-    //func read chat
-    private void readChat() {
-        ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
-        call.enqueue(new Callback<ChatRoomResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
-                if (response.isSuccessful()){
-                    Log.d("RESPONSE","CHAT suskes di read");
-                } else {
-                    Log.d("RESPONSE","GAGAL READ");
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+
+        btnshowcard.setOnClickListener(view -> {
+            if (cardView.getVisibility() == View.INVISIBLE){
+                Animation animation = AnimationUtils.loadAnimation(this,R.anim.fade_in);
+                cardView.setAnimation(animation);
+                cardView.setVisibility(View.VISIBLE);
+            }else {
+                Animation animation = AnimationUtils.loadAnimation(this,R.anim.bottom_down);
+                cardView.setAnimation(animation);
+                cardView.setVisibility(View.INVISIBLE);
             }
         });
+        btnOpenFile.setOnClickListener(view -> {new LoadFileTask().execute();});
+        btnOpenImage.setOnClickListener(view -> {new LoadImageTask().execute();});
+        btnOpenAudio.setOnClickListener(view -> {new LoadAudioTask().execute();});
+        btnOpenVideo.setOnClickListener(view -> {new LoadVideTask().execute();});
     }
-    //end read chat
-
     //function load data chat
     private void loadDataChat() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse> call = chatService.getChats(perangkat, member, whatsapp, session, page, limit);
+        Call<ChatRoomResponse> call = chatService.getChats(perangkat, whatsapp, page, limit);
         call.enqueue(new Callback<ChatRoomResponse>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -199,7 +222,26 @@ public class ChatRoom extends AppCompatActivity {
         });
     }
     // end load chat
-
+    //func read chat
+    private void readChat() {
+        ChatService chatService = Config.htppclient().create(ChatService.class);
+        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
+        call.enqueue(new Callback<ChatRoomResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
+                if (response.isSuccessful()){
+                    Log.d("RESPONSE","CHAT suskes di read");
+                } else {
+                    Log.d("RESPONSE","GAGAL READ");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ChatRoomResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    //end read chat
     //start new chat
     private void newChat() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
@@ -232,7 +274,6 @@ public class ChatRoom extends AppCompatActivity {
         });
     }
     //end new chat
-
     //send message
     private void sendMessage() {
         ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
@@ -240,16 +281,21 @@ public class ChatRoom extends AppCompatActivity {
         call.enqueue(new Callback<SendChatResponse>() {
             @Override
             public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
-                if ( response.body() != null && response.body().isStatus()){
-                    emessage.setText("");
-                    setChatToPusher();
-                } else {
-                    Toast.makeText(getApplicationContext(),"gagal terkirim",Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    if (response.body() != null && response.body().isStatus()) {
+                        emessage.setText("");
+                        setChatToPusher();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "gagal terkirim", Toast.LENGTH_SHORT).show();
+                    }
+                }else {
+                    Toast.makeText(getApplicationContext(),"server error",Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onFailure(@NonNull Call<SendChatResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"GAGAL SERVER",Toast.LENGTH_SHORT).show();
+                Log.d("RESPONSE ERROR", "msg:"+t.getMessage());
             }
         });
     }
@@ -271,79 +317,125 @@ public class ChatRoom extends AppCompatActivity {
                 pusher.connect();
                 Channel channel = pusher.subscribe(member + "-messages");
                 channel.bind(member,event -> {
-                    newChat();
-//                    try {
-//           JSONObject jsonObject = new JSONObject(event.getData());
-//           Gson gson = new Gson();
-//           PusherResponse pusherResponse = gson.fromJson(jsonObject.toString(),PusherResponse.class);
-//        String data = pusherResponse.getNomorWhatsapp();
-//        String chat = pusherResponse.getPesan();
-//        String[] type = data.split(",");
-//        String datetime = pusherResponse.getDatetime();
-//        String[] waktu = datetime.split(",");
-//        String jam = waktu[1].trim();
-//        String nomor = type[0].trim();
-//        String jenis = type[1].trim();
-//       if (Objects.equals(chat, "image")){
-//         newChat();
-//       } else if (Objects.equals(chat, "document")) {
-//           newChat();
-//       } else if (Objects.equals(chat, "audio")) {
-//           newChat();
-//       } else if (Objects.equals(chat, "video")) {
-//           newChat();
-//       }else {
-//           ChatModelPrivate chatModelPrivate = new ChatModelPrivate();
-//           chatModelPrivate.setText(chat);
-//           chatModelPrivate.setJenis(jenis);
-//           chatModelPrivate.setTime(jam);
-//           runOnUiThread(() -> {
-//                   chatList.add(chatModelPrivate);
-//                   chatAdapter.notifyDataSetChanged();
-//                   recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
-//           });
-//       }
-//        } catch (JSONException e) {
-//        throw new RuntimeException(e);
-//        }
-        });
+                            newChat();
+                        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.attachment_menu,menu);
-        getMenuInflater().inflate(R.menu.forward_menu,menu);
+        getMenuInflater().inflate(R.menu.forward_chat,menu);
+        getMenuInflater().inflate(R.menu.close_chat,menu);
         return true;
     }
+
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-         startActivity(new Intent(getApplicationContext(), Home.class));
-         finish();
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemd = item.getItemId();
+        if (itemd == R.id.btnclosechat){
+            closeChat();
+            return true;
         }
-        return super.onKeyDown(keyCode, event);
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void closeChat() {
+        ChatService chatService = Config.htppclient().create(ChatService.class);
+        Call<ResponseDto>call = chatService.closeChat(member,whatsapp,session);
+        call.enqueue(new Callback<ResponseDto>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseDto> call, @NonNull Response<ResponseDto> response) {
+                if (response.isSuccessful()){
+                    startActivity(new Intent(getApplicationContext(), Home.class));
+                    Toast.makeText(getApplicationContext(),"CLOSE CHAT SUKSES",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(getApplicationContext(),"SERVER NOT RESPONDING",Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ResponseDto> call, @NonNull Throwable t) {
+                Toast.makeText(getApplicationContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     //item send file/image/video
-    public void showAttachmentOptions(View view) {
-        PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.eChat));
-        popupMenu.getMenuInflater().inflate(R.menu.attachment_menu, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.menuFile){
-                return true;
-            } else if (itemId == R.id.menuImage) {
-                showStorage();
-                return true;
-            } else if (itemId == R.id.menuVideo){
-                return true;
-            } else return itemId == R.id.menuAudio;
-        });
-        popupMenu.show();
+    @SuppressLint("StaticFieldLeak")
+    private class LoadImageTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            showImageFromStorage();
+            return null;
+        }
     }
-    private void showStorage() {
+    @SuppressLint("StaticFieldLeak")
+    private class LoadFileTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            showFileFromStorage();
+            return null;
+        }
+    }
+    @SuppressLint("StaticFieldLeak")
+    private class LoadAudioTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            showAudioFromStorage();
+            return null;
+        }
+    }
+    @SuppressLint("StaticFieldLeak")
+    private class LoadVideTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            showVideoFromStorage();
+            return null;
+        }
+    }
+    private void showImageFromStorage() {
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
             Intent intent = new Intent();
             intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intent,10);
+        }else {
+            ActivityCompat.requestPermissions(ChatRoom.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+    private void showFileFromStorage() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            Intent intent = new Intent();
+            String[] mimeTypes = {"application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/pdf"};
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intent,10);
+        }else {
+            ActivityCompat.requestPermissions(ChatRoom.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+    private void showAudioFromStorage() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            Intent intent = new Intent();
+            String[] mimeTypes = {"audio/mpeg"};
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intent,10);
+        }else {
+            ActivityCompat.requestPermissions(ChatRoom.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+    private void showVideoFromStorage() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            Intent intent = new Intent();
+            String[] mimeTypes = {"video/mp4"};
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(intent,10);
         }else {
@@ -358,14 +450,23 @@ public class ChatRoom extends AppCompatActivity {
             Uri uri = data.getData();
             Context context = ChatRoom.this;
             path = RealPathUtility.getRealPath(context,uri);
-            Intent sendImageToForm = new Intent(ChatRoom.this, MainActivity.class);
-            sendImageToForm.putExtra("imagePath",path);
-            sendImageToForm.putExtra("whatsapp",whatsapp);
-            sendImageToForm.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(sendImageToForm);
+//            Intent sendImageToForm = new Intent(ChatRoom.this, MainActivity.class);
+            Picasso.get().load("file://"+path).into(showImageSender);
+            showImageSender.setVisibility(View.VISIBLE);
         } else {
             showImageSender.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @SuppressLint("GestureBackNavigation")
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            pusher.disconnect();
+            startActivity(new Intent(getApplicationContext(),Home.class));
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
     @Override
     protected void onDestroy() {

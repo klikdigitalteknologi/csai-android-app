@@ -1,21 +1,31 @@
 package id.klikdigital.csaiapp.chatBot.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ChatModelBot {
+    @SerializedName("bc_id")
     private String bc_id;
+    @SerializedName("kd_autoreplay")
     private String kd_autoreplay;
+    @SerializedName("member_kode")
     private String member_kode;
+    @SerializedName("kd_perangkat")
     private String kd_perangkat;
+    @SerializedName("keyword")
     private String keyword;
+    @SerializedName("type")
     private String type;
+    @SerializedName("file")
     private String file;
+    @SerializedName("pesan")
     private String pesan;
+    @SerializedName("button")
     private String button;
+    @SerializedName("url")
     private String url;
+    @SerializedName("footer")
     private String footer;
-    private String displayMessage;
 
-
-    private String cutMessage;
     public String getBc_id() {
         return bc_id;
     }
@@ -115,34 +125,5 @@ public class ChatModelBot {
         this.button = button;
         this.url = url;
         this.footer = footer;
-    }
-    public String getDisplayMessage() {
-        return displayMessage;
-    }
-
-    public void setDisplayMessage(String displayMessage) {
-        this.displayMessage = displayMessage;
-    }
-    public String getShortMessage(){
-        int maxLength = 5; // Ubah sesuai kebutuhan Anda
-        if (pesan.length() > maxLength) {
-            return pesan.substring(0, maxLength) + "...";
-        } else {
-            return pesan;
-        }
-    }
-    public String getCutMessage() {
-        return cutMessage;
-    }
-    public void setCutMessage(String cutMessage) {
-        this.cutMessage = cutMessage;
-    }
-    public String settingKetyword(){
-        int maxLength = 4; // Ubah sesuai kebutuhan Anda
-        if (keyword.length() > maxLength) {
-            return keyword.substring(0, maxLength) + "...";
-        } else {
-            return keyword;
-        }
     }
 }

@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
@@ -70,14 +72,6 @@ final Handler handler = new Handler();
             getDataChatBot(); //get data from server
             swipeRefreshLayout.setRefreshing(false);
         });
-        //end of swiprefresh layout
-        final int delay =1000;
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getDataChatBot();
-            }
-        },delay);
         return view;
     }
     private void getDataChatBot() {
@@ -108,17 +102,17 @@ final Handler handler = new Handler();
     }
 
     private void getData(List<ChatModelBot> chatModelBotList) {
-        String[] header = {"Keyword","Pesan","Type","aksi"};
+        String[] header = {"Keyword","Pesan","Type"};
         String[][] data = new String[chatModelBotList.size()][4];
         for (int i = 0; i < chatModelBotList.size(); i++){
             ChatModelBot chatModelBot = chatModelBotList.get(i);
             data[i][0] = chatModelBot.getKeyword();
             data[i][1] = chatModelBot.getPesan();
             data[i][2] = chatModelBot.getType();
+            data[i][3] = "";
         }
         tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(getContext(),header));
-        tableView.setDataAdapter(new ChatBotTableDataAdapter(getContext(),chatModelBotList));
+        tableView.setDataAdapter(new ChatBotTableDataAdapter(getContext(),chatModelBotList, getChildFragmentManager()));
     }
-    private void setHandle(){
-    }
-    }
+
+}
