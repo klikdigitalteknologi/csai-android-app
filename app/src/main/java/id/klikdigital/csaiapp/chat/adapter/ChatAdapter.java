@@ -29,6 +29,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemViewType(int position) {
         // Menentukan jenis tata letak berdasarkan data pada posisi tertentu
         ChatModelPrivate chat = chatList.get(position);
+
         if (chat.getJenis() != null && chat.getJenis().equals("keluar")) {
             if ("image".equals(chat.getTypeFile())){
                 return VIEW_TYPE_SEND_IMAGE;
@@ -158,15 +159,17 @@ private static class SendImageViewHolder extends RecyclerView.ViewHolder{
         }
          void bind(ChatModelPrivate chat) {
             textTimeReceive.setText(chat.getTime());
+
              if ("image".equals(chat.getTypeFile())) {
                  if (!chat.getText().isEmpty()){
                      imageReceive.setVisibility(View.VISIBLE);
-                     textReceiveChat.setVisibility(View.INVISIBLE);
+                     textReceiveChat.setVisibility(View.VISIBLE);
+                     textReceiveChat.setText(chat.getText());
                      String file = chat.getFile();
                      final String url = URL_CDN + file;
                      Picasso.get().load(url).into(imageReceive);
                  } else {
-                     textReceiveChat.setVisibility(View.VISIBLE);
+                     textReceiveChat.setVisibility(View.INVISIBLE);
                      imageReceive.setVisibility(View.VISIBLE);
                      String file = chat.getFile();
                      final String url = URL_CDN + file;

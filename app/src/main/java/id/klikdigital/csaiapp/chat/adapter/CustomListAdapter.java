@@ -1,33 +1,24 @@
 package id.klikdigital.csaiapp.chat.adapter;
+import static com.amulyakhare.textdrawable.TextDrawable.*;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
-
 import id.klikdigital.csaiapp.R;
 import id.klikdigital.csaiapp.chat.model.ChatModel;
 
 public class CustomListAdapter extends ArrayAdapter<ChatModel> {
+
 
     public CustomListAdapter(Context context, ArrayList<ChatModel> chats) {
         super(context, 0, chats);
@@ -38,6 +29,7 @@ public class CustomListAdapter extends ArrayAdapter<ChatModel> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         }
+        ImageView imageView = convertView.findViewById(R.id.imageChat);
         TextView textName = convertView.findViewById(R.id.textName);
         TextView textMessage = convertView.findViewById(R.id.textMessage);
         TextView textTime = convertView.findViewById(R.id.textTimeList);
@@ -47,11 +39,24 @@ public class CustomListAdapter extends ArrayAdapter<ChatModel> {
 //           String phoneNumberWithDomain = chat.getNomorWhatsapp();
 //           String[] parts = phoneNumberWithDomain.split("@");
 //           String phoneNumber = parts[0].trim();
+           String nama = chat.getNama();
+           int cut = 1;
+           String cutName = nama.substring(0,cut);
+          String up = cutName.toUpperCase();
+           TextDrawable drawable = new  TextDrawable.Builder()
+                   .setColor(Color.rgb(88, 128, 192))
+                   .setRadius(2)
+                   .setShape(SHAPE_ROUND)
+                   .setBold()
+                   .setText(up)
+                   .build();
+           imageView.setImageDrawable(drawable);
            String waktu = chat.getTime();
            String time = waktu.substring(0,5);
            textTime.setText(time);
            textName.setText(chat.getNama());
            textMessage.setText(chat.getPesan());
+
            if (Objects.equals(chat.getStatus(), "0")){
                textCountMessage.setVisibility(View.VISIBLE);
                textMessage.setTypeface(null, Typeface.BOLD);
@@ -63,6 +68,7 @@ public class CustomListAdapter extends ArrayAdapter<ChatModel> {
        }
         return convertView;
     }
+
 }
 
 
