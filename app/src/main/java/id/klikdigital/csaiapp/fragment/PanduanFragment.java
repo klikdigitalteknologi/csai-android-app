@@ -55,7 +55,7 @@ public class PanduanFragment extends Fragment {
                     getData(chatModelBotList);
                 } else {
                     Toast.makeText(getContext(),"GAGAL",Toast.LENGTH_SHORT).show();
-                    Log.d("RESPONSE DATA CHAT BOT",response.body().getMessage());
+                    Log.d("RESPONSE DATA CHAT BOT",response.body().getResponse());
                 }
             }
 

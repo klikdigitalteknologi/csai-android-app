@@ -31,6 +31,9 @@ import id.klikdigital.csaiapp.config.ConfigPrivate;
 import id.klikdigital.csaiapp.fragment.LogoutPopup;
 import id.klikdigital.csaiapp.login.activity.LoginActivity;
 import id.klikdigital.csaiapp.session.SessionManage;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,8 +70,15 @@ public class MainActivity extends AppCompatActivity{
        });
     }
     private void sendIamge() {
+        String aa = "/" + gambar;
+        RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), sender);
+        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), whatsapp);
+        RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
+
+        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), gambar);
+        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("file",gambar, imageBody);
         ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
-        Call<SendImageResponse>call = chatService.sendImage(sender,whatsapp,gambar,message);
+        Call<SendImageResponse>call = chatService.sendImage(senderBody,waBody,imagePart,pesanBody);
         call.enqueue(new Callback<SendImageResponse>() {
             @Override
             public void onResponse(@NonNull Call<SendImageResponse> call, @NonNull Response<SendImageResponse> response) {
