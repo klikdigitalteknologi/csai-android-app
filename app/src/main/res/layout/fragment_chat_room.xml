@@ -3,14 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layoutframechatroom"
     android:background="@drawable/background_chat_room"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragment.ChatRoomFragment">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/containerid"
-        tools:context=".chat.acivity.ChatRoom">
+        android:id="@+id/containerid">
         <View
             android:id="@+id/viewBackground"
             android:layout_width="match_parent"
@@ -37,7 +37,7 @@
             android:id="@+id/imageSender"
             android:layout_width="@dimen/_200sdp"
             android:layout_height="@dimen/_200sdp"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_constraintTop_toBottomOf="@id/pbChat"
             app:layout_constraintBottom_toTopOf="@id/layoutlinier"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +45,6 @@
             android:contentDescription="@string/image"
             />
         <androidx.cardview.widget.CardView
-
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginStart="@dimen/_50sdp"
@@ -102,7 +101,15 @@
                     android:src="@drawable/baseline_video_library_24"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
-
+<Spinner
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/spinner"
+    android:visibility="invisible"
+    app:layout_constraintTop_toBottomOf="@id/pbChat"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/layoutlinier"/>
         <ProgressBar
             android:layout_width="@dimen/_25sdp"
             android:layout_height="@dimen/_25sdp"
@@ -120,7 +127,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:orientation="horizontal"
-            android:layout_marginEnd="@dimen/_5sdp"
             android:background="@drawable/card_edit_text"
             >
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -131,8 +137,8 @@
                     android:id="@+id/btnEmoji"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/eChat"
+                    android:layout_marginEnd="@dimen/_50sdp"
                     android:src="@drawable/baseline_insert_emoticon_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -140,33 +146,44 @@
                 <EditText
                     android:id="@+id/eChat"
                     android:textSize="@dimen/_15ssp"
-                    android:layout_marginStart="@dimen/_35sdp"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginStart="@dimen/_30sdp"
+                    app:layout_constraintStart_toEndOf="@id/btnEmoji"
                     android:drawablePadding="@dimen/_10sdp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_width="match_parent"
                     android:scrollbars="vertical"
+                    app:layout_constraintEnd_toStartOf="@id/btnShowQuick"
                     android:scrollHorizontally="false"
                     android:overScrollMode="always"
                     android:scrollbarStyle="insideInset"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/_70sdp"
+                    android:layout_marginEnd="@dimen/_90sdp"
                     android:hint="@string/message"
                     android:background="@android:color/transparent"
                     android:autofillHints=""
                     android:inputType="textMultiLine" />
                 <ImageView
-                    android:id="@+id/btnShowCardview"
+                    android:id="@+id/btnShowQuick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:src="@drawable/round_attachment_24"
+                    android:src="@drawable/baseline_more_vert_24"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/eChat"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    app:layout_constraintEnd_toStartOf="@id/btnShowCardview"
+                    android:contentDescription="@string/message" />
+                <ImageView
+                    android:id="@+id/btnShowCardview"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:src="@drawable/round_attachment_24"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/layousend"
                     android:contentDescription="@string/message" />
+
                 <FrameLayout
                     android:id="@+id/layousend"
                     android:layout_width="@dimen/_40sdp"
@@ -185,7 +202,5 @@
                 </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
