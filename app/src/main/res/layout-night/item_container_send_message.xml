@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/_8sdp"
-    >
+    android:padding="@dimen/_3sdp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_alignParentEnd="true"
-        android:layout_height="wrap_content">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <ImageView
-        android:layout_width="@dimen/_150sdp"
-        android:layout_height="@dimen/_150sdp"
-        android:visibility="gone"
-        android:id="@+id/imageSend"
-        android:layout_marginEnd="@dimen/_5ssp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/textSendMessage"
-        android:contentDescription="@string/image" />
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textSendMessage"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_15ssp"
-        android:padding="@dimen/_8sdp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/background_receive_chat"/>
-
-    <TextView
-        android:id="@+id/textTimeSendMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_4sdp"
-        android:textColor="@color/black"
-        android:textSize="@dimen/_8ssp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textSendMessage" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        tools:ignore="UselessParent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="@dimen/_150sdp"
+                android:layout_height="@dimen/_150sdp"
+                android:visibility="gone"
+                android:id="@+id/imageSend"
+                android:layout_marginEnd="@dimen/_5ssp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/textSendMessage"
+                android:contentDescription="@string/image" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textSendMessage"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_15ssp"
+                android:padding="@dimen/_5sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@drawable/background_receive_chat"/>
+            <TextView
+                android:id="@+id/textTimeSendMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_10ssp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textSendMessage" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </RelativeLayout>
 

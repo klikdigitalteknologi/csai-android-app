@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="@dimen/_3sdp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="@dimen/_150sdp"
-            android:layout_height="@dimen/_150sdp"
-            android:visibility="gone"
-            android:id="@+id/imageReceive"
-            android:layout_marginStart="@dimen/_35ssp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/layouttextview"
-            android:contentDescription="@string/image" />
+        android:layout_height="wrap_content"
         >
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_35ssp"
+            android:background="@drawable/background_chat_room"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/cardimagee"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/layouttextview">
+            <ImageView
+                android:layout_width="@dimen/_100sdp"
+                android:layout_height="@dimen/_100sdp"
+                android:visibility="gone"
+                android:id="@+id/imageReceive"
+                android:padding="@dimen/_5sdp"
+                android:contentDescription="@string/image" />
+        </androidx.cardview.widget.CardView>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/layouttextview"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/imageReceive"
+            app:layout_constraintTop_toBottomOf="@id/cardimagee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <TextView
@@ -30,9 +39,9 @@
                 android:layout_height="match_parent"
                 android:id="@+id/textreceivechat"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_15ssp"
-                android:padding="@dimen/_8sdp"
                 android:layout_marginStart="@dimen/_10sdp"
+                android:padding="@dimen/_5sdp"
+                android:textSize="@dimen/_15ssp"
                 android:background="@drawable/background_send_message"/>
         </LinearLayout>
         <TextView
@@ -46,4 +55,4 @@
             app:layout_constraintTop_toBottomOf="@id/layouttextview"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</RelativeLayout>
+</LinearLayout>

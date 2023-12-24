@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/_8sdp">
+    android:padding="@dimen/_3sdp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_alignParentEnd="true"
@@ -29,9 +29,10 @@
         android:id="@+id/textSendMessage"
         android:textColor="@color/white"
         android:textSize="@dimen/_15ssp"
-        android:padding="@dimen/_8sdp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="@dimen/_5sdp"
+       app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/background_receive_chat"/>
     <TextView
@@ -40,8 +41,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_4sdp"
         android:textColor="@color/black"
-        android:textSize="@dimen/_8ssp"
-        android:layout_marginEnd="@dimen/_10sdp"
+        android:textSize="@dimen/_10ssp"
+        android:layout_marginEnd="@dimen/_5sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textSendMessage" />
 </androidx.constraintlayout.widget.ConstraintLayout>
