@@ -3,6 +3,7 @@
     <style name="appTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/white</item>
         <item name="colorAccent">@color/primary</item>
+        <item name="fontFamily">@font/josefont</item>
     </style>
     <style name="navigationTheme">
         <item name="colorPrimary">@color/white</item>
