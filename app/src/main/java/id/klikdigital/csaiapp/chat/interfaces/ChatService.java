@@ -2,6 +2,7 @@ package id.klikdigital.csaiapp.chat.interfaces;
 
 import id.klikdigital.csaiapp.chat.response.ChatResponse;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
+import id.klikdigital.csaiapp.chat.response.CsResponse;
 import id.klikdigital.csaiapp.chat.response.NotifResponse;
 import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
@@ -71,6 +72,12 @@ public interface ChatService {
             @Query("member") String member,
             @Query("whatsapp") String whatsapp,
             @Query("session") String session
+    );
+
+    @GET("/customerservice")
+    Call<CsResponse>getCs(
+            @Query("member") String member,
+            @Query("customerservice") String kdCs
     );
 }
 
