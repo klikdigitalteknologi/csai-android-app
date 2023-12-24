@@ -392,7 +392,7 @@ public class ChatRoomFragment extends Fragment {
             }
             @Override
             public void onFailure(@NonNull Call<SendChatResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(),"GAGAL SERVER",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
                 Log.d("RESPONSE ERROR", "msg:"+t.getMessage());
             }
         });
