@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/drawer_layout"
     tools:context=".MainActivity">
+
     <include
-        layout="@layout/layout_send_image"
-        android:id="@+id/layoutSendImage"/>
+        android:id="@+id/layoutSendImage"
+        layout="@layout/layout_send_image" />
+
     <LinearLayout
+        android:id="@+id/linearLayoutSendImage"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/linearLayoutSendImage"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/layoutSendImage"
         app:layout_constraintBottom_toTopOf="@id/layoutlinier"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/layoutSendImage">
+
         <ImageView
+            android:id="@+id/terimagambar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/terimagambar"
             android:contentDescription="@string/image" />
     </LinearLayout>
 
@@ -30,57 +32,60 @@
         android:id="@+id/layoutlinier"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_5sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal"
         android:layout_marginEnd="@dimen/_5sdp"
+        android:layout_marginBottom="@dimen/_5sdp"
         android:background="@drawable/card_edit_text"
-        >
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="@dimen/_5sdp">
+
             <ImageView
                 android:id="@+id/btnEmoji"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/chatEditext"
+                android:contentDescription="@string/emoji"
                 android:src="@drawable/baseline_insert_emoticon_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/emoji" />
+                app:layout_constraintEnd_toStartOf="@id/chatEditext"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/chatEditext"
-                android:textSize="@dimen/_15ssp"
-                android:layout_marginStart="@dimen/_35sdp"
-                app:layout_constraintStart_toStartOf="parent"
-                android:drawablePadding="@dimen/_10sdp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_width="match_parent"
-                android:scrollbars="vertical"
-                android:scrollHorizontally="false"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/_35sdp"
+                android:layout_marginEnd="@dimen/_70sdp"
+                android:autofillHints=""
+                android:background="@android:color/transparent"
+                android:drawablePadding="@dimen/_10sdp"
+                android:hint="@string/message"
+                android:inputType="textMultiLine"
                 android:overScrollMode="always"
                 android:scrollbarStyle="insideInset"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/_70sdp"
-                android:hint="@string/message"
-                android:background="@android:color/transparent"
-                android:autofillHints=""
-                android:inputType="textMultiLine" />
+                android:scrollbars="vertical"
+                android:scrollHorizontally="false"
+                android:textSize="@dimen/_15ssp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <FrameLayout
                 android:id="@+id/layousend"
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:background="@drawable/card_button"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/btnSendImage"
                     android:layout_width="match_parent"
