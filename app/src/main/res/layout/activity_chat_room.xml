@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/containerid"
+    android:id="@+id/containerchatroom"
     android:background="@drawable/background_chat_room"
     tools:context=".chat.acivity.ChatRoom">
      <View
@@ -34,13 +34,72 @@
     android:id="@+id/imageSender"
     android:layout_width="@dimen/_200sdp"
     android:layout_height="@dimen/_200sdp"
-    android:visibility="invisible"
+    android:visibility="gone"
     app:layout_constraintTop_toBottomOf="@id/pbChat"
     app:layout_constraintBottom_toTopOf="@id/layoutlinier"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     android:contentDescription="@string/image"
     />
+    <androidx.cardview.widget.CardView
+
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginStart="@dimen/_50sdp"
+        android:layout_marginEnd="@dimen/_50sdp"
+        android:id="@+id/cardPopup"
+        android:visibility="invisible"
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:layout_constraintBottom_toTopOf="@id/layoutlinier"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnfoto"
+                android:id="@+id/btnfile"
+                android:layout_gravity="center"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:src="@drawable/baseline_insert_drive_file_24"
+                />
+            <ImageView
+                android:id="@+id/btnfoto"
+                android:layout_gravity="center"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnaudio"
+                app:layout_constraintStart_toEndOf="@id/btnfile"
+                android:src="@drawable/baseline_insert_photo_24"/>
+            <ImageView
+                android:id="@+id/btnaudio"
+                android:layout_gravity="center"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnvideo"
+                app:layout_constraintStart_toEndOf="@id/btnfoto"
+                android:src="@drawable/baseline_audio_file_24"/>
+            <ImageView
+                android:id="@+id/btnvideo"
+                android:layout_gravity="center"
+                android:layout_width="@dimen/_25sdp"
+                android:layout_height="@dimen/_25sdp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnaudio"
+                android:src="@drawable/baseline_video_library_24"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
     <ProgressBar
         android:layout_width="@dimen/_25sdp"
         android:layout_height="@dimen/_25sdp"
@@ -95,10 +154,10 @@
                 android:autofillHints=""
                 android:inputType="textMultiLine" />
             <ImageView
+                android:id="@+id/btnShowCardview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
-                android:onClick="showAttachmentOptions"
                 android:src="@drawable/round_attachment_24"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

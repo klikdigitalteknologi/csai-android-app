@@ -9,12 +9,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -58,6 +60,7 @@ import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
 import id.klikdigital.csaiapp.config.Config;
 import id.klikdigital.csaiapp.config.ConfigPrivate;
+import id.klikdigital.csaiapp.fragment.ChatFragment;
 import id.klikdigital.csaiapp.home.Home;
 import id.klikdigital.csaiapp.login.model.UserItem;
 import id.klikdigital.csaiapp.session.SessionManage;
@@ -327,6 +330,8 @@ public class ChatRoom extends AppCompatActivity {
         return true;
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemd = item.getItemId();
@@ -463,11 +468,18 @@ public class ChatRoom extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             pusher.disconnect();
-            startActivity(new Intent(getApplicationContext(),Home.class));
-            finish();
+            backToFragment();
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    private void backToFragment() {
+        pusher.disconnect();
+       Intent intent = new Intent(getApplicationContext(), Home.class);
+       intent.putExtra("navigateTo","R.id.nav_chat");
+       startActivity(intent);
+    }
+
     @Override
     protected void onDestroy() {
         if (pusher !=null && pusher.getConnection() != null){
