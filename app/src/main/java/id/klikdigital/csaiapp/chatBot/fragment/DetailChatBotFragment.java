@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,18 +34,26 @@ import id.klikdigital.csaiapp.chatBot.interfaces.ChatBotService;
 import id.klikdigital.csaiapp.chatBot.model.ChatModelBot;
 import id.klikdigital.csaiapp.chatBot.response.ChatBotResponse;
 import id.klikdigital.csaiapp.config.Config;
+import id.klikdigital.csaiapp.home.Home;
 import id.klikdigital.csaiapp.session.SessionManage;
 import retrofit2.Call;
 import retrofit2.Callback;
 
 public class DetailChatBotFragment extends Fragment {
     private EditText keyword,pesan,type;
+    private ImageView btn;
     private String kdReplay,member,perangkat,key,message,jenis,url,baseUrl;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detail_chat_bot, container, false);
+        if (getActivity() instanceof Home){
+            Home mainActivity = (Home) getActivity();
+            if (mainActivity != null) {
+                mainActivity.hideToolbar();
+            }
+        }
         url = "https://engine.csai.id/file/";
         keyword = view.findViewById(R.id.textKey);
         pesan = view.findViewById(R.id.textPesan);

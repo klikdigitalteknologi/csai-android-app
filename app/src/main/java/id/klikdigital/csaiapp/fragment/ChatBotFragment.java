@@ -29,6 +29,7 @@ import id.klikdigital.csaiapp.chatBot.model.ChatModelBot;
 import id.klikdigital.csaiapp.chatBot.response.ChatBotResponse;
 import id.klikdigital.csaiapp.config.ChatRetrofit;
 import id.klikdigital.csaiapp.config.Config;
+import id.klikdigital.csaiapp.home.Home;
 import id.klikdigital.csaiapp.session.SessionManage;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,12 +47,18 @@ final Handler handler = new Handler();
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat_bot, container, false);
+        if (getActivity() instanceof Home){
+            Home mainActivity = (Home) getActivity();
+            if (mainActivity != null) {
+                mainActivity.showToolbar();
+            }
+        }
         tableView = view.findViewById(R.id.table_chatbott);
         //start spinner
         spinner1 = view.findViewById(R.id.spinner);
         spinner2 = view.findViewById(R.id.spinner2);
         String[] selectItem = {"All Contact","10","25","50","100"};
-        String[] filter = {"filter","text","file"};
+        String[] filter = {"filter","text","image"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, selectItem);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, filter);
