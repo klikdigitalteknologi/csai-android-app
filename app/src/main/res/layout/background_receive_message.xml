@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/_3sdp"
+    android:layout_marginEnd="@dimen/_5sdp"
+    android:layout_marginStart="@dimen/_5sdp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,22 +28,21 @@
                 android:contentDescription="@string/image" />
         </androidx.cardview.widget.CardView>
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/layouttextview"
+            android:background="@drawable/background_send_message"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/cardimagee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/textreceivechat"
                 android:textColor="@color/black"
-                android:layout_marginStart="@dimen/_10sdp"
                 android:padding="@dimen/_5sdp"
-               android:textSize="@dimen/_15ssp"
-                android:background="@drawable/background_send_message"/>
+                android:textSize="@dimen/_15ssp"/>
         </LinearLayout>
         <TextView
             android:id="@+id/texttimereceive"
@@ -50,7 +50,6 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:textSize="@dimen/_7ssp"
-            android:layout_marginStart="@dimen/_10sdp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layouttextview"
  />
