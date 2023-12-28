@@ -10,9 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.evrencoskun.tableview.TableView;
+import com.evrencoskun.tableview.pagination.Pagination;
+
 import java.util.List;
 
-import de.codecrafters.tableview.TableView;
 import de.codecrafters.tableview.toolkit.SimpleTableDataAdapter;
 import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 import id.klikdigital.csaiapp.R;
@@ -26,7 +28,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PanduanFragment extends Fragment {
-    private TableView<String[]> tableView;
+private TableView tableView;
+private Pagination pagination;
     private List<ChatModelBot>chatModelBotList;
     private String perangkat,member;
     private final String autoreplay = "0" ;
@@ -35,7 +38,6 @@ public class PanduanFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_panduan, container, false);
-        tableView = view.findViewById(R.id.tableview);
         member = SessionManage.getInstance(getContext()).getUserData().getMemberKode();
         perangkat = SessionManage.getInstance(getContext()).getUserData().getMemberKode();
         getDatatotable();
@@ -75,7 +77,5 @@ public class PanduanFragment extends Fragment {
             data[i][1] = chatModelBot.getPesan();
             data[i][2] = chatModelBot.getType();
         }
-        tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(getContext(),header));
-        tableView.setDataAdapter(new SimpleTableDataAdapter(getContext(),data));
     }
 }
