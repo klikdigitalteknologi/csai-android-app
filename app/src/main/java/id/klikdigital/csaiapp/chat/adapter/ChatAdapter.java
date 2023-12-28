@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,20 +130,30 @@ private static class SendImageViewHolder extends RecyclerView.ViewHolder{
         TextView sendMessage;
         TextView sendTimeMessage;
         ImageView sendImageView;
+        LinearLayout layout;
     public SendImageViewHolder(@NonNull View itemView) {
         super(itemView);
         sendMessage = itemView.findViewById(R.id.textSendMessage);
         sendTimeMessage = itemView.findViewById(R.id.textTimeSendMessage);
         sendImageView = itemView.findViewById(R.id.imageSend);
+        layout = itemView.findViewById(R.id.layoutSendMessage);
     }
     void bind(ChatModelPrivate chat){
         sendMessage.setText(chat.getText());
         sendTimeMessage.setText(chat.getTime());
         if ("image".equals(chat.getTypeFile())){
-            sendImageView.setVisibility(View.VISIBLE);
-            String file = chat.getFile();
-            final String url = URL_CDN + file;
-            Picasso.get().load(url).into(sendImageView);
+            if(!chat.getText().isEmpty()) {
+                sendImageView.setVisibility(View.VISIBLE);
+                String file = chat.getFile();
+                final String url = URL_CDN + file;
+                Picasso.get().load(url).into(sendImageView);
+            }else {
+                sendImageView.setVisibility(View.VISIBLE);
+                String file = chat.getFile();
+                final String url = URL_CDN + file;
+                Picasso.get().load(url).into(sendImageView);
+                layout.setVisibility(View.GONE);
+            }
         } else {
             sendImageView.setVisibility(View.INVISIBLE);
         }
@@ -151,11 +162,13 @@ private static class SendImageViewHolder extends RecyclerView.ViewHolder{
     private static class ReceiveImageViewHolder extends RecyclerView.ViewHolder {
         TextView textReceiveChat,textTimeReceive;
         ImageView imageReceive;
+        LinearLayout layout;
         public ReceiveImageViewHolder(View receiveImageView) {
             super(receiveImageView);
             textReceiveChat = receiveImageView.findViewById(R.id.textreceivechat);
             textTimeReceive = receiveImageView.findViewById(R.id.texttimereceive);
             imageReceive = receiveImageView.findViewById(R.id.imageReceive);
+            layout = receiveImageView.findViewById(R.id.layouttextview);
         }
          void bind(ChatModelPrivate chat) {
             textTimeReceive.setText(chat.getTime());

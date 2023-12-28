@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.vanniktech:emoji:0.18.0'
     implementation 'com.github.ISchwarz23:SortableTableView:2.8.1'
+    implementation 'com.github.evrencoskun:TableView:v0.8.9.4'
     implementation "androidx.emoji2:emoji2:1.4.0"
     implementation 'com.google.code.gson:gson:2.10'
     implementation 'com.alvinhkh:TextDrawable:c1c2b5b'

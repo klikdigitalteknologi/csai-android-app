@@ -84,41 +84,7 @@ public class MainActivity extends AppCompatActivity{
         transaction.addToBackStack(null);
         transaction.commit();
     }
-//    private void sendIamge() {
-//        String aa = "/" + gambar;
-//        RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), sender);
-//        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), whatsapp);
-//        RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
-//
-//        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), gambar);
-//        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("file",gambar, imageBody);
-//        ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
-//        Call<SendImageResponse>call = chatService.sendImage(senderBody,waBody,imagePart,pesanBody);
-//        call.enqueue(new Callback<SendImageResponse>() {
-//            @Override
-//            public void onResponse(@NonNull Call<SendImageResponse> call, @NonNull Response<SendImageResponse> response) {
-//                if (response.isSuccessful()){
-//                    SendImageResponse sendImageResponse = response.body();
-//                    if (sendImageResponse.isStatus()){
-//                        Toast.makeText(getApplicationContext(),"sedang mengirim",Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(getApplicationContext(),ChatRoom.class);
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.putExtra("nomor_wa",whatsapp);
-//                        startActivity(intent);
-//                    }else {
-//                        Toast.makeText(getApplicationContext(),"Gagal mengirim gambar",Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    Toast.makeText(getApplicationContext(),"server not responding",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NonNull Call<SendImageResponse> call, @NonNull Throwable t) {
-//                Log.d("Response Send Image",t.getMessage());
-//            }
-//        });
-//    }
+
 
     @Override
     public void onBackPressed() {

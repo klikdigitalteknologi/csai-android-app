@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     private void _authLogin() {
         ApiService apiService = Config.htppclient().create(ApiService.class);
-        String kdperangkat = "4faf133ea46f7ee2eac98fb2c9481c6a";
+        String kdperangkat = "32899caf42c72b8288fbdbb5434a494c";
         Call<ApiResponse> apiResponseCall = apiService.loginUser(username,password, kdperangkat);
         apiResponseCall.enqueue(new Callback<ApiResponse>() {
             @Override
