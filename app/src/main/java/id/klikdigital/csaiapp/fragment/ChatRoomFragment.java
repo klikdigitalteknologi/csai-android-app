@@ -1,7 +1,5 @@
 package id.klikdigital.csaiapp.fragment;
-import static android.content.Intent.getIntent;
 
-import static androidx.core.content.ContextCompat.getSystemService;
 import static com.amulyakhare.textdrawable.TextDrawable.SHAPE_ROUND;
 
 import android.Manifest;
@@ -10,24 +8,34 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +45,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -49,6 +56,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
@@ -56,14 +64,17 @@ import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
 import com.pusher.client.connection.ConnectionStateChange;
 import com.squareup.picasso.Picasso;
-import com.vanniktech.emoji.Emoji;
-import com.vanniktech.emoji.EmojiInformation;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import id.klikdigital.csaiapp.MainActivity;
 import id.klikdigital.csaiapp.R;
+import id.klikdigital.csaiapp.chat.acivity.SendTypeFragment;
 import id.klikdigital.csaiapp.chat.adapter.ChatAdapter;
 import id.klikdigital.csaiapp.chat.interfaces.ChatService;
 import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
@@ -102,15 +113,15 @@ public class ChatRoomFragment extends Fragment {
     private TextView user;
     private Handler handler;
     private int page,limit,sender;
-    private ImageView btnquick,imageProfileChat,emojiBtn,showImageSender,btnshowcard,btnOpenImage,btnOpenFile,btnOpenAudio,btnOpenVideo;
+    private ImageView kirimgambar,btnquick,imageProfileChat,emojiBtn,showImageSender,btnshowcard,btnOpenImage,btnOpenFile,btnOpenAudio,btnOpenVideo;
     private AppCompatImageView btnsend;
     private CardView cardView;
     private Spinner spinner;
     private boolean isSelectedItem = false;
     private List<String> replayOptions = new ArrayList<>();
     private FrameLayout frameLayout;
-
-    @Override
+    private ConstraintLayout layout;
+    private ActivityResultLauncher<Intent> launcher;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -132,8 +143,8 @@ public class ChatRoomFragment extends Fragment {
         imageProfileChat = view.findViewById(R.id.imageProfileChat);
         emojiBtn = view.findViewById(R.id.btnEmoji);
         btnquick = view.findViewById(R.id.btnShowQuick);
+        kirimgambar = view.findViewById(R.id.terimagambar);
         //End ImageView
-
 
 
         //Start Component
@@ -148,6 +159,7 @@ public class ChatRoomFragment extends Fragment {
         //End Component
 
         linearLayoutManager = new LinearLayoutManager(getContext());
+        layout = view.findViewById(R.id.nt);
 
         //set quickreplay recyleview
         //end set quickreplay
@@ -167,7 +179,8 @@ public class ChatRoomFragment extends Fragment {
         limit = 10;
         replayfast = "0";
         Bundle bundle = getArguments();
-        whatsapp = bundle.getString("nomor");
+        String a = bundle.getString("nomor");
+        whatsapp = Arrays.toString(a.split("@"));
         pengguna = bundle.getString("nama");
         Log.d("WA","NOMOR "+ whatsapp);
         Log.d("NAMA","NAMA"+pengguna);
@@ -187,6 +200,7 @@ public class ChatRoomFragment extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
             readChat();
             loadDataChat();
+            setChatToPusher();
         } else {
             Toast.makeText(getContext(), "Nomor WhatsApp tidak valid", Toast.LENGTH_SHORT).show();
         }
@@ -241,6 +255,8 @@ public class ChatRoomFragment extends Fragment {
         });
         return view;
     }
+
+
 
     //Start get Quickreplay
     private void getDataReplay() {
@@ -561,15 +577,27 @@ public class ChatRoomFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 10 && resultCode == Activity.RESULT_OK){
             Uri uri = data.getData();
-            Context context = getContext();
-            path = RealPathUtility.getRealPath(context,uri);
-            Picasso.get().load("file://"+path).into(showImageSender);
-            showImageSender.setVisibility(View.VISIBLE);
-        } else {
-            showImageSender.setVisibility(View.INVISIBLE);
+
+//            File file = new File(getActivity().getExternalFilesDir(null), fileName);
+//            File file = new File(String.valueOf(uri));
+            if (getActivity() instanceof FragmentActivity){
+                pusher.disconnect();
+                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                Bundle bundle = new Bundle();
+                bundle.putString("wa",whatsapp);
+                bundle.putString("image", String.valueOf(uri));
+                bundle.putString("nama",pengguna);
+                SendTypeFragment sendTypeFragment = new SendTypeFragment();
+                sendTypeFragment.setArguments(bundle);
+                transaction.replace(R.id.navHostFragment, sendTypeFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+
+
         }
     }
-
     @Override
     public void onDestroy() {
         if (pusher !=null && pusher.getConnection() != null){

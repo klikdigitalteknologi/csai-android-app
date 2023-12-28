@@ -149,7 +149,7 @@ public class ChatFragment extends Fragment {
                         adapter.notifyDataSetChanged();
                         listView.setAdapter(adapter);
                         getDataFromPusher();
-//                        getCountNotif();
+                        getCountNotif();
                     } else {
                         getDataFromPusher();
                         Log.d("response debug", "data kosong");
@@ -173,6 +173,7 @@ public class ChatFragment extends Fragment {
         call.enqueue(new Callback<NotifResponse>() {
             @Override
             public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
+                Log.d("RESPONSE","msg:"+response.body());
                 if (response.isSuccessful()) {
                     List<NotifModel> chatResponse = response.body().getData();
                     if (response.body().isStatus()){
@@ -202,7 +203,7 @@ public class ChatFragment extends Fragment {
                     }
 
                 } else {
-                    Toast.makeText(getContext(), "SERVER ERROR", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "SERVER ERROR", Toast.LENGTH_SHORT).show();
                     Log.d("RESPONSE CODE", "CODE \n" + response.code());
                 }
             }

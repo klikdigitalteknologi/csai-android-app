@@ -16,8 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ConfigPrivate {
     private static Retrofit retro;
-    private static final String URL ="https://188.166.186.222";
-//    private static final String URL="https://1b2d-36-85-220-204.ngrok-free.app";
+//    private static final String URL ="https://188.166.186.222";
+    private static final String URL="https://abe1-36-85-222-245.ngrok-free.app";
     public static Retrofit htppclient(){
         if (retro == null) {
 
