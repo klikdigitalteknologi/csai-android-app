@@ -5,19 +5,17 @@ import static com.amulyakhare.textdrawable.TextDrawable.SHAPE_ROUND;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,14 +26,12 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,9 +50,10 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
@@ -67,20 +64,19 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import id.klikdigital.csaiapp.MainActivity;
 import id.klikdigital.csaiapp.R;
-import id.klikdigital.csaiapp.chat.acivity.SendTypeFragment;
 import id.klikdigital.csaiapp.chat.adapter.ChatAdapter;
 import id.klikdigital.csaiapp.chat.interfaces.ChatService;
 import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
 import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
+import id.klikdigital.csaiapp.chat.response.SendImageResponse;
+import id.klikdigital.csaiapp.chat.response.SendVideoResponse;
 import id.klikdigital.csaiapp.config.Config;
 import id.klikdigital.csaiapp.config.ConfigPrivate;
 import id.klikdigital.csaiapp.home.Home;
@@ -90,28 +86,37 @@ import id.klikdigital.csaiapp.quickreplay.models.QuickReplayModels;
 import id.klikdigital.csaiapp.quickreplay.response.QuickReplayResponse;
 import id.klikdigital.csaiapp.session.SessionManage;
 import id.klikdigital.csaiapp.util.RealPathUtility;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatRoomFragment extends Fragment {
 
-    private String perangkat,member,whatsapp,session,message,path,pengguna,client,replayfast;
+    private String perangkat,member,whatsapp,session,message,path,pengguna,client,replayfast,selectPath;
     private String[] wa;
     private Pusher pusher;
     private static final String APP_ID="1578008";
     private static final String KEY ="560f792226b7069d0cd9";
     private static final String SECRET = "e8b3af6069e8cc5db7fb";
     private static final String CLUSTER ="ap1";
+    private static final int SELECTED_VIDEO = 1;
+    private static final int SELECTED_IMAGE = 2;
+    private static final int SELECTED_FILE = 3;
+    private static final int SELECTED_AUDIO = 4;
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private ChatAdapter chatAdapter;
     private List<ChatModelPrivate> chatList;
+    private List<ChatModelPrivate> list;
     private LinearLayoutManager linearLayoutManager;
     private EditText emessage;
     private TextView user;
     private Handler handler;
+    private File file;
     private int page,limit,sender;
     private ImageView kirimgambar,btnquick,imageProfileChat,emojiBtn,showImageSender,btnshowcard,btnOpenImage,btnOpenFile,btnOpenAudio,btnOpenVideo;
     private AppCompatImageView btnsend;
@@ -120,8 +125,12 @@ public class ChatRoomFragment extends Fragment {
     private boolean isSelectedItem = false;
     private List<String> replayOptions = new ArrayList<>();
     private FrameLayout frameLayout;
-    private ConstraintLayout layout;
+    private ConstraintLayout layout,lc;
+    private BottomSheetDialog bottomSheetDialog;
     private ActivityResultLauncher<Intent> launcher;
+
+
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -156,6 +165,7 @@ public class ChatRoomFragment extends Fragment {
         cardView = view.findViewById(R.id.cardPopup);
         spinner = view.findViewById(R.id.spinner);
         frameLayout = view.findViewById(R.id.layoutframechatroom);
+        lc = view.findViewById(R.id.constraintoid);
         //End Component
 
         linearLayoutManager = new LinearLayoutManager(getContext());
@@ -169,6 +179,7 @@ public class ChatRoomFragment extends Fragment {
         }
 
         chatList = new ArrayList<>();
+        list = new ArrayList<>();
         SessionManage sessionManage = SessionManage.getInstance(getContext());
         UserItem userItem = sessionManage.getUserData();
         perangkat = userItem.getMemberKode();
@@ -179,8 +190,9 @@ public class ChatRoomFragment extends Fragment {
         limit = 10;
         replayfast = "0";
         Bundle bundle = getArguments();
-        String a = bundle.getString("nomor");
-        whatsapp = Arrays.toString(a.split("@"));
+        whatsapp = bundle.getString("nomor");
+//        whatsapp = Arrays.toString(a.split("@"));
+        wa = whatsapp.split("@");
         pengguna = bundle.getString("nama");
         Log.d("WA","NOMOR "+ whatsapp);
         Log.d("NAMA","NAMA"+pengguna);
@@ -200,23 +212,25 @@ public class ChatRoomFragment extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
             readChat();
             loadDataChat();
-            setChatToPusher();
+//            setChatToPusher();
         } else {
             Toast.makeText(getContext(), "Nomor WhatsApp tidak valid", Toast.LENGTH_SHORT).show();
         }
+
+
+        emojiBtn.setOnClickListener(v -> {
+
+        });
 
         btnsend.setOnClickListener(v -> {
             message = emessage.getText().toString().trim();
             Log.d("RESPONSE ANJAY","pesan: " +message );
             Log.d("RESPONSE NOMOR", "nomor: " + whatsapp );
             Log.d("RESPONSE PENGIRIM", "kd: " + perangkat);
-           sendMessage();
-        });
-
-        emojiBtn.setOnClickListener(v -> {
+          sendMessage();
 
         });
-
+        lc.setOnClickListener(v->cardView.setVisibility(View.INVISIBLE));
         frameLayout.setOnClickListener(v -> cardView.setVisibility(View.INVISIBLE));
         btnshowcard.setOnClickListener(v -> {
             if (cardView.getVisibility() == View.INVISIBLE){
@@ -253,6 +267,7 @@ public class ChatRoomFragment extends Fragment {
                 // Do nothing if nothing is selected
             }
         });
+
         return view;
     }
 
@@ -316,8 +331,7 @@ public class ChatRoomFragment extends Fragment {
                             chatAdapter.notifyDataSetChanged();
                             recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
                         }
-//                        readChat();
-                        setChatToPusher();
+                        readChat();
                     } else {
                         Log.d("RESPONSE DATA", "KOSONGG");
                     }
@@ -337,7 +351,7 @@ public class ChatRoomFragment extends Fragment {
     //Start void ReadChat
     private void readChat() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
+        Call<ChatRoomResponse>call = chatService.readChat(perangkat,wa[0]);
         call.enqueue(new Callback<ChatRoomResponse>() {
             @Override
             public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
@@ -367,12 +381,13 @@ public class ChatRoomFragment extends Fragment {
                     ChatRoomResponse chatRoomResponse = response.body();
                     if (chatRoomResponse != null && chatRoomResponse.isStatus() && chatRoomResponse.getData() != null) {
                         List<ChatModelPrivate> newChatlist = chatRoomResponse.getData();
-                        chatList.addAll(newChatlist);
-                        chatList = chatRoomResponse.getData();
-                        chatAdapter.notifyDataSetChanged();
-                        recyclerView.setAdapter(chatAdapter);
-                        recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
-                        readChat();
+                            chatList.addAll(newChatlist);
+//                            chatList = chatRoomResponse.getData();
+                            chatAdapter.notifyDataSetChanged();
+                            recyclerView.setAdapter(chatAdapter);
+                            recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
+                            Log.d("RESPONSE NEW CHAT","msg:"+newChatlist.get(0).getText());
+                            readChat();
                     } else {
                         Log.d("RESPONSE DATA", "TIDAK CHAT BARU");
                     }
@@ -390,15 +405,17 @@ public class ChatRoomFragment extends Fragment {
 
     //Start SendMessage
     private void sendMessage() {
+        String[] nomor =(whatsapp.split("@"));
+        Log.d("RESPONSE NOMORR SEND","MSG:"+nomor[0]);
         ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
-        Call<SendChatResponse>call = chatService.sendMessage(sender,whatsapp,message);
+        Call<SendChatResponse>call = chatService.sendMessage(sender,nomor[0],message);
         call.enqueue(new Callback<SendChatResponse>() {
             @Override
             public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null && response.body().isStatus()) {
                         emessage.setText("");
-                        setChatToPusher();
+//                        setChatToPusher();
                     } else {
                         Toast.makeText(getContext(), "gagal terkirim", Toast.LENGTH_SHORT).show();
                     }
@@ -416,6 +433,7 @@ public class ChatRoomFragment extends Fragment {
     //End SendMEssage
 
     //Start Load Chat From Pusher
+    @SuppressLint("StaticFieldLeak")
     private void setChatToPusher() {
         PusherOptions options = new PusherOptions().setCluster(CLUSTER);
         pusher = new Pusher(KEY, options);
@@ -432,7 +450,13 @@ public class ChatRoomFragment extends Fragment {
         pusher.connect();
         Channel channel = pusher.subscribe(member + "-messages");
         channel.bind(member,event -> {
-            newChat();
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    newChat();
+                    return null;
+                }
+            }.execute();
         });
     }
     //End Load Chat From Pusher
@@ -466,7 +490,7 @@ public class ChatRoomFragment extends Fragment {
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(intent,10);
+            startActivityForResult(Intent.createChooser(intent, "Select Image"),SELECTED_IMAGE);
         }else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -480,7 +504,7 @@ public class ChatRoomFragment extends Fragment {
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(intent,10);
+            startActivityForResult(Intent.createChooser(intent, "Select File"),SELECTED_FILE);
         }else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -490,11 +514,11 @@ public class ChatRoomFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
             Intent intent = new Intent();
-            String[] mimeTypes = {"audio/mpeg"};
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+//            String[] mimeTypes = {"audio/mpeg"};
+            intent.setType("audio/*");
+//            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(intent,10);
+            startActivityForResult(Intent.createChooser(intent, "Select Audio"),SELECTED_AUDIO);
         }else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -504,11 +528,9 @@ public class ChatRoomFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
             Intent intent = new Intent();
-            String[] mimeTypes = {"video/mp4"};
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            intent.setType("video/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(intent,10);
+            startActivityForResult(Intent.createChooser(intent, "Select Video"),SELECTED_VIDEO);
         }else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -575,29 +597,188 @@ public class ChatRoomFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 10 && resultCode == Activity.RESULT_OK){
+        if (resultCode == Activity.RESULT_OK){
             Uri uri = data.getData();
-
-//            File file = new File(getActivity().getExternalFilesDir(null), fileName);
-//            File file = new File(String.valueOf(uri));
-            if (getActivity() instanceof FragmentActivity){
-                pusher.disconnect();
-                FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                Bundle bundle = new Bundle();
-                bundle.putString("wa",whatsapp);
-                bundle.putString("image", String.valueOf(uri));
-                bundle.putString("nama",pengguna);
-                SendTypeFragment sendTypeFragment = new SendTypeFragment();
-                sendTypeFragment.setArguments(bundle);
-                transaction.replace(R.id.navHostFragment, sendTypeFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+            switch (requestCode){
+                case SELECTED_VIDEO:
+                   Uri uriVideo = data.getData();
+                   openDropDownVideo(uriVideo);
+                    break;
+                case SELECTED_AUDIO:
+                    openDropDownAudio(uri);
+                    break;
+                case SELECTED_FILE:
+                    openDropDownFile(uri);
+                    break;
+                case SELECTED_IMAGE:
+                    openDropdown(uri);
+                    break;
+                default:
+                    break;
             }
-
-
         }
     }
+
+    private void openDropDownFile(Uri uri) {
+    }
+    private void openDropDownAudio(Uri uri) {
+    }
+    private void openDropDownVideo(Uri video) {
+        try {
+            if (video != null) {
+                selectPath = getPath(video);
+//                String select = RealPathUtility.getRealPath(getContext(),video);
+                Log.d("RESPONSE VIDEO","msg:" +video);
+                final Dialog dialog = new Dialog(getContext());
+                dialog.setContentView(R.layout.send_video);
+                ImageView imageView = dialog.findViewById(R.id.keluarImage);
+                VideoView videoView = dialog.findViewById(R.id.video);
+                EditText editText = dialog.findViewById(R.id.eVideo);
+                AppCompatImageView btnSend = dialog.findViewById(R.id.btnSendImage);
+                imageView.setOnClickListener(v -> dialog.dismiss());
+                btnSend.setOnClickListener(v -> {
+                    uploadVideoToServer(editText,selectPath);
+                    dialog.dismiss();
+                });
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int width = displayMetrics.widthPixels;
+                int height = displayMetrics.heightPixels;
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+                videoView.setVisibility(View.VISIBLE);
+                videoView.setVideoURI(video);
+                videoView.start();
+                dialog.show();
+            }else {
+                Toast.makeText(getContext(),"video kosong",Toast.LENGTH_SHORT).show();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),"GAGAL mengambil video"+e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void openDropdown(Uri uri) {
+
+        String imagePath = RealPathUtility.getRealPath(getContext(), uri);
+      Log.d("RESPONSE",imagePath);
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.send_image);
+        ImageView imageView = dialog.findViewById(R.id.imageKeluar);
+        ImageView img = dialog.findViewById(R.id.gambarkirim);
+        EditText editText = dialog.findViewById(R.id.eImage);
+        AppCompatImageView btnsend = dialog.findViewById(R.id.btnSendImage);
+        imageView.setOnClickListener(v -> dialog.dismiss());
+        btnsend.setOnClickListener(view -> {
+            sendImageToServer(editText,imagePath);
+            dialog.dismiss();
+        });
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+        img.setVisibility(View.VISIBLE);
+        Picasso.get().load(uri).into(img);
+        dialog.show();
+    }
+
+    public String getPath(Uri uri) {
+        Cursor cursor = requireActivity().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = requireActivity().getContentResolver().query(
+                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+        cursor.close();
+        return path;
+    }
+
+    private void sendImageToServer(EditText editText, String imagePath) {
+        message = editText.getText().toString();
+        File data = new File(imagePath);
+        RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(sender));
+        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
+        RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
+        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), data);
+        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image",data.getName(), imageBody);
+        ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
+        Call<SendImageResponse>call = chatService.sendImage(senderBody,waBody,imagePart,pesanBody);
+        call.enqueue(new Callback<SendImageResponse>() {
+            @Override
+            public void onResponse(Call<SendImageResponse> call, Response<SendImageResponse> response) {
+
+                if (response.isSuccessful()){
+                    Toast.makeText(getContext(),"Image Sedang di kirim..",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(getContext(),"Gagal Mengirim Image",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SendImageResponse> call, Throwable t) {
+
+            }
+        });
+    }
+    private void uploadVideoToServer(EditText editText, String uri) {
+        message = editText.getText().toString();
+        File file1 = new File(uri);
+        Log.d("PATH",selectPath);
+        RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(sender));
+        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
+        RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
+        RequestBody videoBody = RequestBody.create(MediaType.parse("video/*"), file1);
+        MultipartBody.Part videPart = MultipartBody.Part.createFormData("video",file1.getName(), videoBody);
+        ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
+        Call<SendVideoResponse>call = chatService.sendVideo(senderBody,waBody,pesanBody,videPart);
+        call.enqueue(new Callback<SendVideoResponse>() {
+            @Override
+            public void onResponse(Call<SendVideoResponse> call, Response<SendVideoResponse> response) {
+
+                if (response.isSuccessful()){
+                    Toast.makeText(getContext(),"Video Sedang di kirim..",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(getContext(),"Gagal Mengirim Video",Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<SendVideoResponse> call, Throwable t) {
+                Toast.makeText(getContext(),"Gagal Mengirim Video"+t.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+    @Override
+    public void onStop() {
+        pusher.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        setChatToPusher();
+        super.onStart();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
     @Override
     public void onDestroy() {
         if (pusher !=null && pusher.getConnection() != null){
