@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 import id.klikdigital.csaiapp.login.activity.LoginActivity;
 import id.klikdigital.csaiapp.session.SessionManage;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashScreen extends AppCompatActivity {
 
     private String member = "";
@@ -25,6 +27,7 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash_screen);
         Intent intent = getIntent();
         Uri uri = intent.getData();
@@ -44,20 +47,17 @@ public class SplashScreen extends AppCompatActivity {
         }
 
         Handler handler = new Handler();
-if (isConnected()){
-    handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-            Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("member", member);
-            startActivity(intent);
-            finish();
-        }
-    }, 3000);
-} else {
-    Toast.makeText(getApplicationContext(),"TIDAK ADA KONEKSI INTERNET",Toast.LENGTH_SHORT).show();
-}
+        handler.postDelayed(() -> {
+            if (isConnected()){
+                Intent intent1 = new Intent(SplashScreen.this, LoginActivity.class);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent1.putExtra("member", member);
+                startActivity(intent1);
+                finish();
+            } else {
+                Toast.makeText(getApplicationContext(),"TIDAK ADA KONEKSI INTERNET",Toast.LENGTH_SHORT).show();
+            }
+        }, 3000);
     }
     private boolean isConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

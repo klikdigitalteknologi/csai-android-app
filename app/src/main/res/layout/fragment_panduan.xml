@@ -4,16 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/pruplee"
     tools:context=".fragment.PanduanFragment">
 
-    <com.evrencoskun.tableview.TableView
-        android:id="@+id/content_container"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:column_header_height="@dimen/_100sdp"
-        app:row_header_width="@dimen/_100sdp"
-        app:selected_color="@color/primary"
-        app:shadow_color="@color/primary"
-        app:unselected_color="@color/primary"/>
+        android:id="@+id/swPanduan"
+        android:layout_height="wrap_content">
+        <ListView
+            android:layout_marginTop="@dimen/_10sdp"
+            android:id="@+id/listPanduan"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
+            android:padding="@dimen/_5sdp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
 </FrameLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_sheet_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:layout_marginTop="@dimen/_20sdp"
+        android:id="@+id/imgPdf"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="@dimen/_200sdp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+<!--    <Button-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/imgPdf"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        android:layout_marginTop="@dimen/_20sdp"-->
+<!--        android:id="@+id/btnSendPdf"-->
+<!--        android:background="@drawable/button_card"-->
+<!--        android:text="@string/kirim"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textStyle="bold"-->
+<!--        android:layout_marginEnd="@dimen/_50sdp"-->
+<!--        android:layout_marginStart="@dimen/_50sdp"-->
+<!--        android:textSize="@dimen/_20sdp"-->
+<!--        android:padding="@dimen/_5sdp"/>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

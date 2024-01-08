@@ -7,38 +7,41 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10sdp"
         android:layout_marginBottom="@dimen/_10sdp">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/spin_contact"
-            android:layout_width="wrap_content"
+     <androidx.appcompat.widget.AppCompatButton
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:background="@drawable/button_menu"
+         android:text="@string/impor"
+         android:textSize="@dimen/_13ssp"
+         android:textColor="@color/white"
+         android:id="@+id/btnImport"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent"
+         app:layout_constraintEnd_toStartOf="@id/btnAddContact"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="@dimen/_8ssp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/contact_spinner"
-            android:layout_marginTop="@dimen/_15sdp"
-            app:layout_constraintStart_toStartOf="parent">
-            <Spinner
-                android:layout_width="@dimen/_100sdp"
-                android:layout_height="50dp"
-                android:id="@+id/s_contact"
-                android:background="@drawable/style_spinner"
-                android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"/>
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
+            android:background="@drawable/button_menu"
+            android:text="@string/add_contact"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"
+            android:id="@+id/btnAddContact"
+            app:layout_constraintStart_toEndOf="@id/btnImport"
+            app:layout_constraintEnd_toStartOf="@id/btnAddlabel"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="@dimen/_90sdp"
             android:layout_height="wrap_content"
-            android:id="@+id/contact_spinner"
-            android:layout_marginTop="@dimen/_15sdp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/spin_contact"
-            app:layout_constraintEnd_toEndOf="parent">
-            <Spinner
-                android:layout_width="@dimen/_100sdp"
-                android:layout_height="50dp"
-                android:id="@+id/contact_s"
-                android:background="@drawable/style_spinner2"/>
-
-        </androidx.cardview.widget.CardView>
+            android:background="@drawable/button_menu"
+            android:text="@string/add_label"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13sdp"
+            android:id="@+id/btnAddlabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnAddContact"
+            app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <de.codecrafters.tableview.TableView
         app:tableView_headerColor="@color/bgcsai"

@@ -1,23 +1,40 @@
 package id.klikdigital.csaiapp.chat.adapter;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.List;
 import id.klikdigital.csaiapp.R;
 import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private Context mct;
     private static final int VIEW_TYPE_SEND = 1;
     private static final int VIEW_TYPE_RECEIVE = 2;
     private static final int VIEW_TYPE_RECEIVE_IMAGE = 3;
@@ -28,7 +45,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_RECEIVE_AUDIO = 8;
     private static final int VIEW_TYPE_SEND_DOCUMENT = 9;
     private static final int VIEW_TYPE_RECEIVE_DOCUMENT = 10;
-    private static final String URL_CDN = "https://baf1-36-85-221-17.ngrok-free.app/file/";
+    private static final String URL_CDN = "https://testpublic.laminhdatau.online/file/";
     private final List<ChatModelPrivate> chatList;
 
     // Konstruktor adapter dengan menerima daftar pesan
@@ -55,26 +72,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 default:
                     return VIEW_TYPE_SEND;
             }
-//            if ("image".equals(chat.getTypeFile())){
-//                if ("document".equals(chat.getTypeFile())){
-//                    return VIEW_TYPE_SEND_IMAGE;
-//                }else {
-//                    return VIEW_TYPE_SEND_IMAGE;
-//                }
-//            } else {
-//            return VIEW_TYPE_SEND;
-//            }
         } else {
             String type = chat.getTypeFile();
             switch (type) {
                 case "image":
-                    return VIEW_TYPE_SEND_IMAGE;
+                    return VIEW_TYPE_RECEIVE_IMAGE;
                 case "video":
-                    return VIEW_TYPE_SEND_VIDEO;
+                    return VIEW_TYPE_RECEIVE_VIDEO;
                 case "audio":
-                    return VIEW_TYPE_SEND_AUDIO;
+                    return VIEW_TYPE_RECEIVE_AUDIO;
                 case "document":
-                    return VIEW_TYPE_SEND_DOCUMENT;
+                    return VIEW_TYPE_RECEIVE_DOCUMENT;
                 default:
                     return VIEW_TYPE_RECEIVE;
             }
@@ -208,6 +216,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void bind(ChatModelPrivate chat) {
             String time = chat.getTime();
             String waktu = time.substring(0,5);
+            if (chat.getText().isEmpty()){
+                textReceiveChat.setVisibility(View.GONE);
+            }
             // Mengisi data ke layout_receive_message.xml
             textReceiveChat.setText(chat.getText());
             textTimeReceive.setText(waktu);
@@ -279,7 +290,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                      textReceiveChat.setText(chat.getText());
                      Picasso.get().load(url).into(imageReceive);
                  } else {
-                     textReceiveChat.setVisibility(View.INVISIBLE);
+                     textReceiveChat.setVisibility(View.GONE);
                      imageReceive.setVisibility(View.VISIBLE);
                      String file = chat.getFile();
                      final String url = URL_CDN + file;
@@ -291,7 +302,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         private void showImage(String url) {
-
+            itemView.setOnClickListener(view -> {
+               final Dialog dialog = new Dialog(mct);
+               dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+               dialog.setCancelable(true);
+               dialog.setContentView(R.layout.send_image);
+                ImageView imageView = dialog.findViewById(R.id.imageKeluar);
+                ImageView img = dialog.findViewById(R.id.gambarkirim);
+                imageView.setOnClickListener(v -> dialog.dismiss());
+                Picasso.get().load(url).into(img);
+                dialog.show();
+            });
         }
     }
     //buatkan class seperti ini private static class ReceiveImageViewHolder extends RecyclerView.ViewHolder
@@ -300,13 +321,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView sendTimeMessage;
         ImageView sendImageView;
         LinearLayout layout;
+        CardView cardViewVideo;
+        VideoView viewVideo;
+        ImageView btnNext,btnBack,btnPlay;
 
         public SendVideoViewHolder(View receiveImageView) {
             super(receiveImageView);
             sendMessage = receiveImageView.findViewById(R.id.textSendMessage);
             sendTimeMessage = receiveImageView.findViewById(R.id.textTimeSendMessage);
-            sendImageView = receiveImageView.findViewById(R.id.imageSend);
             layout = receiveImageView.findViewById(R.id.layoutSendMessage);
+            cardViewVideo = receiveImageView.findViewById(R.id.cardVideo);
+            btnBack = receiveImageView.findViewById(R.id.btnNextBack);
+            btnNext = receiveImageView.findViewById(R.id.btnNExt);
+            btnPlay = receiveImageView.findViewById(R.id.btnPlay);
+            viewVideo = receiveImageView.findViewById(R.id.sendVideoId);
+
         }
 
         public void bind(ChatModelPrivate chat) {
@@ -314,24 +343,41 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             String waktu = time.substring(0,5);
             sendMessage.setText(chat.getText());
             sendTimeMessage.setText(waktu);
-            if ("image".equals(chat.getTypeFile())){
-                if(!chat.getText().isEmpty()) {
-                    sendImageView.setVisibility(View.VISIBLE);
-                    String file = chat.getFile();
-                    final String url = URL_CDN + file;
-                    Picasso.get().load(url).into(sendImageView);
+            String video = URL_CDN + chat.getFile();
+            Uri videoUri = Uri.parse(video);
+            Glide.with(cardViewVideo.getContext())
+                    .load(videoUri)
+                            .downloadOnly(new SimpleTarget<File>() {
+                                @SuppressLint("CheckResult")
+                                @Override
+                                public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
+                                    viewVideo.setVideoPath(resource.getPath());
+                                }
+                            });
+
+//            final MediaPlayer mediaPlayer = MediaPlayer.create(cardViewVideo.getContext(), Uri.parse(video));
+            btnPlay.setOnClickListener(view -> {
+                viewVideo.start();
+                viewVideo.setVideoURI(videoUri);
+//                btnPlay.setImageResource(R.drawable.pause);
+                if (viewVideo.isPlaying()){
+                    viewVideo.pause();
+                    btnPlay.setImageResource(R.drawable.pause);
                 }else {
-                    sendImageView.setVisibility(View.VISIBLE);
-                    String file = chat.getFile();
-                    final String url = URL_CDN + file;
-                    Picasso.get().load(url).into(sendImageView);
+                    viewVideo.start();
+                    viewVideo.setVideoURI(videoUri);
+                    btnPlay.setImageResource(R.drawable.playy);
+                }
+            });
+            if ("video".equals(chat.getTypeFile())){
+                if(!chat.getText().isEmpty()) {
+                   cardViewVideo.setVisibility(View.VISIBLE);
+                    viewVideo.setVideoURI(videoUri);
+                }else {
+                    cardViewVideo.setVisibility(View.VISIBLE);
+                    viewVideo.setVideoURI(videoUri);
                     layout.setVisibility(View.GONE);
                 }
-            } else if ("document".equals(chat.getTypeFile())){
-                sendImageView.setVisibility(View.VISIBLE);
-                String file = chat.getFile();
-                Drawable drawable = Drawable.createFromPath(String.valueOf(R.drawable.pdf));
-                sendImageView.setImageDrawable(drawable);
             }
         }
 

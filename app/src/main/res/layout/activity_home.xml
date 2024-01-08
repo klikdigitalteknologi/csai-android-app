@@ -6,6 +6,7 @@
     android:id="@+id/drawer_layout_home"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:openDrawer="start"
     tools:context=".home.Home">
     <FrameLayout
         android:layout_width="match_parent"

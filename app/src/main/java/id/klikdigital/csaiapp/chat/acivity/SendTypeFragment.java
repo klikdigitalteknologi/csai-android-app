@@ -39,8 +39,10 @@ import retrofit2.Response;
 public class SendTypeFragment extends Fragment {
 
     private ImageView imageSender,bck;
-    private String gambar,whatsapp,sender,message,nama;
+    private String gambar,whatsapp,sender,message,nama,image;
     private EditText chat;
+    private File file;
+    private String[] wa;
     private AppCompatImageView btnSend;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,20 +56,21 @@ public class SendTypeFragment extends Fragment {
         sender = sessionManage.getUserData().getMemberKode();
        Bundle bundle = getArguments();
        gambar = bundle.getString("image");
-       String no = bundle.getString("wa");
+       whatsapp = bundle.getString("wa");
        nama = bundle.getString("nama");
-
+       image = bundle.getString("gambar");
+       file = new File(gambar);
         Log.d("RESPONSE GAMBAR","msg:" +gambar);
-        Log.d("RESPONSE NOMOR DAN NAMA ","msg:" +no+nama);
+        Log.d("RESPONSE NOMOR DAN NAMA ","msg:" +whatsapp);
 
-       whatsapp = Arrays.toString(no.split("@"));
+      wa = whatsapp.split("@");
+//      wa[0] = whatsapp;
         if (gambar != null){
 //            File file = new File(gambar);
 //            Log.d("JALUR GAMBAR", "msg: " + file.getAbsolutePath());
-
 //            Uri uri = Uri.fromFile(file);
 //            imageSender.setImageURI(uri);
-            Picasso.get().load(gambar).into(imageSender);
+            Picasso.get().load(image).into(imageSender);
            imageSender.setVisibility(View.VISIBLE);
        }else {
            Toast.makeText(getContext(),"GAMBAR KOSONG",Toast.LENGTH_SHORT).show();
@@ -83,11 +86,12 @@ public class SendTypeFragment extends Fragment {
     }
     private void sendType() {
         String aa = "/" + gambar;
+        message = chat.getText().toString();
         RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), sender);
-        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), whatsapp);
+        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
         RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
-        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), gambar);
-        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("file",gambar, imageBody);
+        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image",file.getName(), imageBody);
         ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
         Call<SendImageResponse> call = chatService.sendImage(senderBody,waBody,imagePart,pesanBody);
         call.enqueue(new Callback<SendImageResponse>() {
@@ -110,17 +114,41 @@ public class SendTypeFragment extends Fragment {
                         Toast.makeText(getContext(),"GAGAL PINDAH LAYOUT",Toast.LENGTH_SHORT).show();
                     }
                 }else {
-                    Toast.makeText(getContext(),response.code(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),"GAGAL KIRIM GAMBAR",Toast.LENGTH_SHORT).show();
+                    Log.d("RESPONSE SENDTYPE","MSG:"+response.code());
+                    Log.d("RESPONSE SENDTYPE","MSG:"+response.body());
+
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<SendImageResponse> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
+                Log.d("RESPONSE ERROR SEND GAMBAR","MSG:"+t.getMessage());
             }
         });
     }
 
+
+
     private void backtoChatRoom() {
+        if (getActivity() instanceof FragmentActivity){
+            FragmentManager fragmentManager = ((FragmentActivity) getContext()).getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            ChatRoomFragment chatRoomFragment = new ChatRoomFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("nomor",whatsapp);
+            bundle.putString("nama", nama);
+            chatRoomFragment.setArguments(bundle);
+            transaction.replace(R.id.navHostFragment, chatRoomFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            }
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        super.onDestroyView();
     }
 }

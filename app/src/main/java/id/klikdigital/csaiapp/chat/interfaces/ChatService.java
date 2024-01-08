@@ -6,7 +6,9 @@ import id.klikdigital.csaiapp.chat.response.CsResponse;
 import id.klikdigital.csaiapp.chat.response.NotifResponse;
 import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
+import id.klikdigital.csaiapp.chat.response.SendFileResponse;
 import id.klikdigital.csaiapp.chat.response.SendImageResponse;
+import id.klikdigital.csaiapp.chat.response.SendVideoResponse;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -60,6 +62,30 @@ public interface ChatService {
             @Part MultipartBody.Part image,
             @Part("message") RequestBody message);
 
+    @Multipart
+    @POST("/send-file")
+    Call<SendFileResponse>sendFile(
+            @Part("sender") RequestBody sender,
+            @Part("whatsapp") RequestBody whatsapp,
+            @Part("message") RequestBody message,
+            @Part MultipartBody.Part file);
+
+    @Multipart
+    @POST("/send-audio")
+    Call<SendImageResponse>sendAudio(
+            @Part("sender") RequestBody sender,
+            @Part("whatsapp") RequestBody whatsapp,
+            @Part MultipartBody.Part audio,
+            @Part("message") RequestBody message);
+    @Multipart
+    @POST("/send-video")
+    Call<SendVideoResponse>sendVideo(
+            @Part("sender") RequestBody sender,
+            @Part("whatsapp") RequestBody whatsapp,
+            @Part("message") RequestBody message,
+            @Part MultipartBody.Part video
+            );
+
     @GET("/notif")
     Call<NotifResponse>getNotif(
             @Query("perangkat") String perangkat,
@@ -79,6 +105,8 @@ public interface ChatService {
             @Query("member") String member,
             @Query("customerservice") String kdCs
     );
+
+    Call<ChatResponse> sendMessage(String member, String session, String message, String whatsapp);
 }
 
 

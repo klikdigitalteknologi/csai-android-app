@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ public class QuickFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TableView<QuickReplayModels> tableView;
     private List<QuickReplayModels>data;
+    private Button add;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,16 +53,12 @@ public class QuickFragment extends Fragment {
             }
         }
         tableView = view.findViewById(R.id.table_quickreply);
-        spinner1 = view.findViewById(R.id.s_couint);
         spinner2 = view.findViewById(R.id.s_count);
         swipeRefreshLayout = view.findViewById(R.id.sw_quick);
-        String[] selectItem = {"All Contact","10","25","50","100"};
+        add = view.findViewById(R.id.btnAddquick);
         String[] filter = {"filter","text","image"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, selectItem);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, filter);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner1.setAdapter(adapter);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner2.setAdapter(arrayAdapter);
 
         member = SessionManage.getInstance(getContext()).getUserData().getMemberKode();

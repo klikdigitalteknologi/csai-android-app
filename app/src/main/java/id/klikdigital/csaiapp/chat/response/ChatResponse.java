@@ -1,7 +1,4 @@
 package id.klikdigital.csaiapp.chat.response;
-
-import com.pusher.client.channel.PusherEvent;
-
 import java.util.ArrayList;
 
 import id.klikdigital.csaiapp.chat.model.ChatModel;

@@ -31,6 +31,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     NavigationView navigationView;
     ImageView imageView,btn_close;
     private CardView layoutoolbar;
+    private SessionManage sessionManage;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -44,11 +45,12 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_home);
         imageView = findViewById(R.id.image_home);
-
+        sessionManage = new SessionManage(getApplicationContext());
         btn_close =navigationView.getHeaderView(0).findViewById(R.id.btnClose);
         imageView.setOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
         btn_close.setOnClickListener(view -> drawerLayout.closeDrawer(GravityCompat.START));
 
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         // Temukan NavHostFragment dan dapatkan NavController
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.navHostFragment);
         NavController navController = navHostFragment.getNavController();
@@ -92,6 +94,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         NavController navController = Navigation.findNavController(this, R.id.navHostFragment);
         navController.navigate(fragmentId);
         drawerLayout.closeDrawer(GravityCompat.START);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
     private void showLogoutConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -103,9 +106,8 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         btnYes.setOnClickListener(v -> {
             Intent intent = new Intent(Home.this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            SessionManage sessionManage = new SessionManage(getApplicationContext());
             sessionManage.clearUserData();
+            startActivity(intent);
             Toast.makeText(getApplicationContext(), "Logout Success", Toast.LENGTH_SHORT).show();
             finish();
             alertDialog.dismiss();
@@ -139,6 +141,4 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             layoutoolbar.setVisibility(View.VISIBLE);
         }
     }
-
-
 }

@@ -1,17 +1,27 @@
 package id.klikdigital.csaiapp.fragment;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -33,11 +43,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ContactFragment extends Fragment {
-    private Spinner spinner1, spinner2;
     private String member, whatsapp;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TableView<ContactModels> tableView;
+    private AppCompatButton btnImport,btnAddContact,btnAddLabel;
     private List<ContactModels> data;
+    private ImageView imageView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,20 +60,19 @@ public class ContactFragment extends Fragment {
                 mainActivity.showToolbar();
             }
         }
+        btnImport = view.findViewById(R.id.btnImport);
+        btnAddContact = view.findViewById(R.id.btnAddContact);
+        btnAddLabel = view.findViewById(R.id.btnAddlabel);
+
+
         swipeRefreshLayout = view.findViewById(R.id.sw_contact);
-        spinner1 = view.findViewById(R.id.s_contact);
-        spinner2 = view.findViewById(R.id.contact_s);
         tableView = view.findViewById(R.id.table_contact);
-        String[] selectItem = {"All Contact", "10", "25", "50", "100"};
-        String[] filter = {"filter", "text", "image"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, selectItem);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, filter);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner1.setAdapter(adapter);
-        spinner2.setAdapter(arrayAdapter);
         member = SessionManage.getInstance(getContext()).getUserData().getMemberKode();
         whatsapp = "0";
+
+        btnAddLabel.setOnClickListener(v->openDropdown());
+        btnImport.setOnClickListener(v->openImportContact());
+        btnAddContact.setOnClickListener(v->openAddContact());
 
         getDataContact();
 
@@ -72,6 +82,76 @@ public class ContactFragment extends Fragment {
             swipeRefreshLayout.setRefreshing(false);
         });
         return view;
+    }
+
+    private void openAddContact() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.add_contact);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+        dialog.show();
+    }
+
+    private void openImportContact() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.import_contact);
+        imageView = dialog.findViewById(R.id.imgclos);
+        Button chosefile = dialog.findViewById(R.id.btnChoseFile);
+        Button saveLabel = dialog.findViewById(R.id.btnImport);
+        TextView textView = dialog.findViewById(R.id.textDownloadSample);
+
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+
+        textView.setOnClickListener(v->openFolder());
+        chosefile.setOnClickListener(v->openFile());
+        imageView.setOnClickListener(v->dialog.dismiss());
+        saveLabel.setOnClickListener(v->Toast.makeText(getContext(),"INISAVE",Toast.LENGTH_SHORT).show());
+        dialog.show();
+    }
+
+    private void openFile() {
+        Toast.makeText(getContext(),"OPENFILE",Toast.LENGTH_SHORT).show();
+    }
+
+    private void openFolder() {
+        Toast.makeText(getContext(),"OPENFOLDER",Toast.LENGTH_SHORT).show();
+    }
+
+    private void openDropdown() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.add_label_contact);
+        imageView = dialog.findViewById(R.id.imageCloses);
+        EditText eLabel = dialog.findViewById(R.id.eLabel);
+        Button saveLabel = dialog.findViewById(R.id.btnSendLabel);
+        EditText search = dialog.findViewById(R.id.eSearch);
+        Spinner spinner = dialog.findViewById(R.id.spn);
+
+        String[] selectItem = {"Show","10","25","50","100"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(dialog.getContext(), android.R.layout.simple_spinner_dropdown_item, selectItem);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        int width = displayMetrics.widthPixels;
+        int height = displayMetrics.heightPixels;
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+        imageView.setOnClickListener(v->dialog.dismiss());
+        saveLabel.setOnClickListener(v->Toast.makeText(getContext(),"INISAVE",Toast.LENGTH_SHORT).show());
+        dialog.show();
     }
 
     private void getDataContact() {

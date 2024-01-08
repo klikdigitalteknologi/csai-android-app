@@ -65,4 +65,25 @@
     <string name="pesan1">Pesan</string>
     <string name="type1">Jenis</string>
     <string name="closechat">closeChat</string>
+    <string name="kirim">kirim</string>
+    <string name="add_quick_reply">Add Quick Reply</string>
+    <string name="impor">Import</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="add_label">Add Label</string>
+    <string name="add_label_contact">Add Label Contact</string>
+    <string name="label_contact">Label Contact</string>
+    <string name="submit">Submit</string>
+    <string name="importr">Import</string>
+    <string name="down">Download Example</string>
+    <string name="details"><![CDATA[Details ->]]></string>
+    <string name="textquick">Setiap Chat yang masuk akan di simpan data kontaknya secara otomatis, Anda juga dapat meng-inputkan data kontak yang sudah ke dalam CSAI serta dapat melakukan export data Kontak juga. Jumlah maksimal kontak yang dapat di simpan tergantung dari paket yang Anda pilih. Ketika jumlah kontak sudah mencapat limit dari total maksimal paket Anda, Chat tetap akan masuk akan tetapi tidak menyimpan data kontak dari Chat tersebut</string>
+    <string name="label">Label</string>
+    <string name="kirim_gambar">Kirim Gambar</string>
+    <string name="kirim_video">Kirim Video</string>
+    <string name="kirim_file">Kirim File</string>
+    <string name="nomor_whatsapp">Nomor Whatsapp</string>
+    <string name="ex_628212223242526">Ex 628212223242526</string>
+    <string name="open_folder">Open Folder</string>
+    <string name="member">member</string>
+    <string name="pause">pause</string>
 </resources>

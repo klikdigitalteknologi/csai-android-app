@@ -47,7 +47,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="app.csai.id"
+                    android:host="laminhdatau.online"
                     android:pathPrefix="/cslogin"
                     android:scheme="https" />
             </intent-filter>

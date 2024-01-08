@@ -13,9 +13,13 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +29,7 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +38,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +59,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.pusher.client.Pusher;
 import com.pusher.client.PusherOptions;
@@ -75,6 +82,7 @@ import id.klikdigital.csaiapp.chat.model.ChatModelPrivate;
 import id.klikdigital.csaiapp.chat.response.ChatRoomResponse;
 import id.klikdigital.csaiapp.chat.response.ResponseDto;
 import id.klikdigital.csaiapp.chat.response.SendChatResponse;
+import id.klikdigital.csaiapp.chat.response.SendFileResponse;
 import id.klikdigital.csaiapp.chat.response.SendImageResponse;
 import id.klikdigital.csaiapp.chat.response.SendVideoResponse;
 import id.klikdigital.csaiapp.config.Config;
@@ -95,6 +103,8 @@ import retrofit2.Response;
 
 public class ChatRoomFragment extends Fragment {
 
+
+    private Dialog dialogImage;
     private String perangkat,member,whatsapp,session,message,path,pengguna,client,replayfast,selectPath;
     private String[] wa;
     private Pusher pusher;
@@ -127,10 +137,11 @@ public class ChatRoomFragment extends Fragment {
     private FrameLayout frameLayout;
     private ConstraintLayout layout,lc;
     private BottomSheetDialog bottomSheetDialog;
-    private ActivityResultLauncher<Intent> launcher;
+    private ActivityResultLauncher<PickVisualMediaRequest> launcher;
 
 
 
+    @SuppressLint("StaticFieldLeak")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -141,6 +152,9 @@ public class ChatRoomFragment extends Fragment {
                 mainActivity.hideToolbar();
             }
         }
+        launcher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), o -> {
+            
+        });
         //start ImageView
         showImageSender =view.findViewById(R.id.imageSender);
         btnshowcard =view.findViewById(R.id.btnShowCardview);
@@ -167,7 +181,6 @@ public class ChatRoomFragment extends Fragment {
         frameLayout = view.findViewById(R.id.layoutframechatroom);
         lc = view.findViewById(R.id.constraintoid);
         //End Component
-
         linearLayoutManager = new LinearLayoutManager(getContext());
         layout = view.findViewById(R.id.nt);
 
@@ -227,8 +240,12 @@ public class ChatRoomFragment extends Fragment {
             Log.d("RESPONSE ANJAY","pesan: " +message );
             Log.d("RESPONSE NOMOR", "nomor: " + whatsapp );
             Log.d("RESPONSE PENGIRIM", "kd: " + perangkat);
-          sendMessage();
-
+            if (message.equals("")){
+                Log.d("RESPONSE","masih kosong");
+            }else {
+                sendMessage();
+                emessage.setText("");
+            }
         });
         lc.setOnClickListener(v->cardView.setVisibility(View.INVISIBLE));
         frameLayout.setOnClickListener(v -> cardView.setVisibility(View.INVISIBLE));
@@ -241,10 +258,10 @@ public class ChatRoomFragment extends Fragment {
                 cardView.setVisibility(View.INVISIBLE);
             }
         });
-        btnOpenFile.setOnClickListener(v -> new  LoadFileTask().execute());
-        btnOpenImage.setOnClickListener(v -> new LoadImageTask().execute());
-        btnOpenAudio.setOnClickListener(v -> new LoadAudioTask().execute());
-        btnOpenVideo.setOnClickListener(v -> new LoadVideTask().execute());
+        btnOpenFile.setOnClickListener(v ->showFileFromStorage());
+        btnOpenImage.setOnClickListener(v -> showImageFromStorage());
+        btnOpenAudio.setOnClickListener(v -> showAudioFromStorage());
+        btnOpenVideo.setOnClickListener(v -> showVideoFromStorage());
 
         btnquick.setOnClickListener(v -> {
             if (spinner.getVisibility() == View.VISIBLE) {
@@ -351,7 +368,7 @@ public class ChatRoomFragment extends Fragment {
     //Start void ReadChat
     private void readChat() {
         ChatService chatService = Config.htppclient().create(ChatService.class);
-        Call<ChatRoomResponse>call = chatService.readChat(perangkat,wa[0]);
+        Call<ChatRoomResponse>call = chatService.readChat(perangkat,whatsapp);
         call.enqueue(new Callback<ChatRoomResponse>() {
             @Override
             public void onResponse(@NonNull Call<ChatRoomResponse> call, @NonNull Response<ChatRoomResponse> response) {
@@ -405,30 +422,36 @@ public class ChatRoomFragment extends Fragment {
 
     //Start SendMessage
     private void sendMessage() {
-        String[] nomor =(whatsapp.split("@"));
-        Log.d("RESPONSE NOMORR SEND","MSG:"+nomor[0]);
-        ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
-        Call<SendChatResponse>call = chatService.sendMessage(sender,nomor[0],message);
-        call.enqueue(new Callback<SendChatResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
-                if (response.isSuccessful()) {
-                    if (response.body() != null && response.body().isStatus()) {
-                        emessage.setText("");
+        try {
+            String[] nomor = (whatsapp.split("@"));
+            Log.d("RESPONSE NOMORR SEND", "MSG:" + nomor[0]);
+            ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
+            Call<SendChatResponse> call = chatService.sendMessage(sender, nomor[0], message);
+            call.enqueue(new Callback<SendChatResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<SendChatResponse> call, @NonNull Response<SendChatResponse> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body() != null && response.body().isStatus()) {
+                            emessage.setText("");
 //                        setChatToPusher();
+                        } else {
+                            Toast.makeText(getContext(), "gagal terkirim", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(getContext(), "gagal terkirim", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "server error", Toast.LENGTH_SHORT).show();
                     }
-                }else {
-                    Toast.makeText(getContext(),"server error",Toast.LENGTH_SHORT).show();
                 }
-            }
-            @Override
-            public void onFailure(@NonNull Call<SendChatResponse> call, @NonNull Throwable t) {
-                Toast.makeText(getContext(),t.getMessage(),Toast.LENGTH_SHORT).show();
-                Log.d("RESPONSE ERROR", "msg:"+t.getMessage());
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<SendChatResponse> call, @NonNull Throwable t) {
+                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("RESPONSE ERROR", "msg:" + t.getMessage());
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),"ERROR"+e.getMessage(),Toast.LENGTH_SHORT).show();
+            Log.d("ERROR SEND MESSAGE","MSG"+e.getMessage());
+        }
     }
     //End SendMEssage
 
@@ -485,16 +508,12 @@ public class ChatRoomFragment extends Fragment {
 
     //Start Void Send Type
     private void showImageFromStorage() {
-        if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Image"),SELECTED_IMAGE);
-        }else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        }
+        ImagePicker.with(this)
+                .galleryOnly()
+                .crop()
+                .compress(512)
+                .maxResultSize(512, 512)
+                .start(SELECTED_IMAGE);
     }
     private void showFileFromStorage() {
         if (ContextCompat.checkSelfPermission(getContext(),
@@ -539,42 +558,6 @@ public class ChatRoomFragment extends Fragment {
     //End void SendType
     //End OFf Void
 
-    //Start Superclass
-    @SuppressLint("StaticFieldLeak")
-    private class LoadImageTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            showImageFromStorage();
-            return null;
-        }
-    }
-    @SuppressLint("StaticFieldLeak")
-    private class LoadFileTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            showFileFromStorage();
-            return null;
-        }
-    }
-    @SuppressLint("StaticFieldLeak")
-    private class LoadAudioTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            showAudioFromStorage();
-            return null;
-        }
-    }
-    @SuppressLint("StaticFieldLeak")
-    private class LoadVideTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            showVideoFromStorage();
-            return null;
-        }
-    }
-
-    //End SuperClass
-
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -598,20 +581,23 @@ public class ChatRoomFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK){
-            Uri uri = data.getData();
             switch (requestCode){
                 case SELECTED_VIDEO:
                    Uri uriVideo = data.getData();
                    openDropDownVideo(uriVideo);
                     break;
                 case SELECTED_AUDIO:
-                    openDropDownAudio(uri);
+                    Uri uriAudio = data.getData();
+                    openDropDownAudio(uriAudio);
                     break;
                 case SELECTED_FILE:
-                    openDropDownFile(uri);
+                    Uri uriFile = data.getData();
+                    openDropDownFile(uriFile);
                     break;
                 case SELECTED_IMAGE:
-                    openDropdown(uri);
+                    Uri uriImage = data.getData();
+                    Log.d("RESPONSE URI IMAGE","uri"+uriImage);
+                    openDropdownImage(uriImage);
                     break;
                 default:
                     break;
@@ -620,7 +606,34 @@ public class ChatRoomFragment extends Fragment {
     }
 
     private void openDropDownFile(Uri uri) {
+        try {
+//            String path = RealPathUtility.getRealPath(getContext(),uri);
+            final Dialog dialog = new Dialog(getContext());
+            dialog.setContentView(R.layout.send_file);
+            ImageView imageView = dialog.findViewById(R.id.iconKeluar);
+            ImageView img = dialog.findViewById(R.id.pdfgambar);
+            EditText editText = dialog.findViewById(R.id.eFile);
+            AppCompatImageView btnSend = dialog.findViewById(R.id.btnSendFile);
+            imageView.setOnClickListener(v -> dialog.dismiss());
+            btnSend.setOnClickListener(v -> {
+                uploadFileToServer(editText,uri);
+                dialog.dismiss();
+            });
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = displayMetrics.widthPixels;
+            int height = displayMetrics.heightPixels;
+            dialog.getWindow().setLayout((6 * width) / 7, (6 * height) / 7);
+            img.setVisibility(View.VISIBLE);
+            dialog.show();
+            dialog.getWindow().setGravity(Gravity.CENTER);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(), "server error"+e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
+
     private void openDropDownAudio(Uri uri) {
     }
     private void openDropDownVideo(Uri video) {
@@ -658,76 +671,115 @@ public class ChatRoomFragment extends Fragment {
             Toast.makeText(getContext(),"GAGAL mengambil video"+e.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
-    private void openDropdown(Uri uri) {
-
-        String imagePath = RealPathUtility.getRealPath(getContext(), uri);
-      Log.d("RESPONSE",imagePath);
-        final Dialog dialog = new Dialog(getContext());
-        dialog.setContentView(R.layout.send_image);
-        ImageView imageView = dialog.findViewById(R.id.imageKeluar);
-        ImageView img = dialog.findViewById(R.id.gambarkirim);
-        EditText editText = dialog.findViewById(R.id.eImage);
-        AppCompatImageView btnsend = dialog.findViewById(R.id.btnSendImage);
-        imageView.setOnClickListener(v -> dialog.dismiss());
-        btnsend.setOnClickListener(view -> {
-            sendImageToServer(editText,imagePath);
-            dialog.dismiss();
-        });
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int width = displayMetrics.widthPixels;
-        int height = displayMetrics.heightPixels;
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
-        img.setVisibility(View.VISIBLE);
-        Picasso.get().load(uri).into(img);
-        dialog.show();
+    private void openDropdownImage(Uri uri) {
+        try {
+//            String imagePath = RealPathUtility.getRealPath(getContext(),uri);
+//            Log.d("RESPONSE",imagePath);
+            final Dialog dialog = new Dialog(getContext());
+            dialog.setContentView(R.layout.send_image);
+            ImageView imageView = dialog.findViewById(R.id.imageKeluar);
+            ImageView img = dialog.findViewById(R.id.gambarkirim);
+            EditText editText = dialog.findViewById(R.id.eImage);
+            AppCompatImageView btnsend = dialog.findViewById(R.id.btnSendImage);
+            imageView.setOnClickListener(v -> dialog.dismiss());
+            btnsend.setOnClickListener(view -> {
+                sendImageToServer(editText,uri);
+                dialog.dismiss();
+            });
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = displayMetrics.widthPixels;
+            int height = displayMetrics.heightPixels;
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout((int) (width*.9), (int) (height*.9));
+            img.setVisibility(View.VISIBLE);
+//            Picasso.get().load(uri).into(img);
+            img.setImageURI(uri);
+            dialog.show();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
     }
 
     public String getPath(Uri uri) {
-        Cursor cursor = requireActivity().getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-        cursor.close();
+        try {
+            Cursor cursor = requireActivity().getContentResolver().query(uri, null, null, null, null);
+            cursor.moveToFirst();
+            String document_id = cursor.getString(0);
+            document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+            cursor.close();
 
-        cursor = requireActivity().getContentResolver().query(
-                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-        cursor.moveToFirst();
-        @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-        cursor.close();
-        return path;
+            cursor = requireActivity().getContentResolver().query(
+                    android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+            cursor.close();
+            return path;
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+    public String showPath(Uri uri) {
+        try {
+            Cursor cursor = requireActivity().getContentResolver().query(uri, null, null, null, null);
+            cursor.moveToFirst();
+            String document_id = cursor.getString(0);
+            document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+            cursor.close();
+
+            cursor = requireActivity().getContentResolver().query(
+                    android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+            cursor.moveToFirst();
+            @SuppressLint("Range") String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+            cursor.close();
+            return path;
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
-    private void sendImageToServer(EditText editText, String imagePath) {
-        message = editText.getText().toString();
-        File data = new File(imagePath);
-        RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(sender));
-        RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
-        RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
-        RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), data);
-        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image",data.getName(), imageBody);
-        ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
-        Call<SendImageResponse>call = chatService.sendImage(senderBody,waBody,imagePart,pesanBody);
-        call.enqueue(new Callback<SendImageResponse>() {
-            @Override
-            public void onResponse(Call<SendImageResponse> call, Response<SendImageResponse> response) {
+    private void sendImageToServer(EditText editText, Uri imagePath) {
+        try {
+            message = editText.getText().toString();
+            String file = RealPathUtility.getRealPathFromURI_API19(getContext(),imagePath);
+            File data = new File(file);
+            RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(sender));
+            RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
+            RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
+            RequestBody imageBody = RequestBody.create(MediaType.parse("image/*"), data);
+            MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", data.getName(), imageBody);
+            ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
+            Call<SendImageResponse> call = chatService.sendImage(senderBody, waBody, imagePart, pesanBody);
+            call.enqueue(new Callback<SendImageResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<SendImageResponse> call, @NonNull Response<SendImageResponse> response) {
 
-                if (response.isSuccessful()){
-                    Toast.makeText(getContext(),"Image Sedang di kirim..",Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(getContext(),"Gagal Mengirim Image",Toast.LENGTH_SHORT).show();
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Image Sedang di kirim..", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Gagal Mengirim Image", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<SendImageResponse> call, Throwable t) {
-
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<SendImageResponse> call, @NonNull Throwable t) {
+                    Toast.makeText(getContext(), "server error  "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),"error"+e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
     }
     private void uploadVideoToServer(EditText editText, String uri) {
+        try {
         message = editText.getText().toString();
         File file1 = new File(uri);
         Log.d("PATH",selectPath);
@@ -740,7 +792,7 @@ public class ChatRoomFragment extends Fragment {
         Call<SendVideoResponse>call = chatService.sendVideo(senderBody,waBody,pesanBody,videPart);
         call.enqueue(new Callback<SendVideoResponse>() {
             @Override
-            public void onResponse(Call<SendVideoResponse> call, Response<SendVideoResponse> response) {
+            public void onResponse(@NonNull Call<SendVideoResponse> call, @NonNull Response<SendVideoResponse> response) {
 
                 if (response.isSuccessful()){
                     Toast.makeText(getContext(),"Video Sedang di kirim..",Toast.LENGTH_SHORT).show();
@@ -749,10 +801,46 @@ public class ChatRoomFragment extends Fragment {
                 }
             }
             @Override
-            public void onFailure(Call<SendVideoResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<SendVideoResponse> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(),"Gagal Mengirim Video"+t.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
+        }catch (Exception e){
+        e.printStackTrace();
+        Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void uploadFileToServer(EditText editText, Uri uri) {
+        try {
+            message = editText.getText().toString();
+            File pdf = new File(String.valueOf(uri));
+            RequestBody senderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(sender));
+            RequestBody waBody = RequestBody.create(MediaType.parse("text/plain"), wa[0]);
+            RequestBody pesanBody = RequestBody.create(MediaType.parse("text/plain"), message);
+            RequestBody requestBody = RequestBody.create(MediaType.parse("application/pdf"), pdf);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("file", pdf.getName(), requestBody);
+            ChatService chatService = ConfigPrivate.htppclient().create(ChatService.class);
+            Call<SendFileResponse> call = chatService.sendFile(senderBody, waBody, pesanBody, body);
+            call.enqueue(new Callback<SendFileResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<SendFileResponse> call, @NonNull Response<SendFileResponse> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "File Sedang di kirim..", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Gagal Mengirim File", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<SendFileResponse> call, @NonNull Throwable t) {
+                    Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("TAG", "onFailure: " + t.getMessage());
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onPause() {
@@ -771,6 +859,7 @@ public class ChatRoomFragment extends Fragment {
     @Override
     public void onStart() {
         setChatToPusher();
+        readChat();
         super.onStart();
     }
 

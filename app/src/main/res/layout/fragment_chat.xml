@@ -10,10 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:ignore="UselessParent">
-        <include
-            layout="@layout/layout_item_chatlist"
-            android:id="@+id/layout_item_chatlis"
-            />
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swipeRefreshLayout"
                 android:layout_width="match_parent"
